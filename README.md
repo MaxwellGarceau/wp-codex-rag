@@ -21,6 +21,26 @@ This fetches WordPress docs and stores embeddings in Chroma under the configured
 ## Frontend
 A Next.js 14 app in `frontend/` provides a minimal chat-like UI to submit questions to the backend.
 
+### Frontend dev
+```bash
+cd frontend
+npm install
+npm run dev
+```
+Set `NEXT_PUBLIC_API_BASE_URL` in your frontend environment when needed.
+
+### Environment
+Backend uses variables in `core/config.py`. Create `.env` based on the following:
+
+- `OPENAI_API_KEY`: Your OpenAI API key
+- `OPENAI_MODEL`: Defaults to `gpt-4o-mini`
+- `OPENAI_EMBEDDING_MODEL`: Defaults to `text-embedding-3-small`
+- `CHROMA_PERSIST_DIRECTORY`: Directory for Chroma persistence (mount a volume in prod)
+- `RAG_COLLECTION_NAME`: Defaults to `wp_codex_plugin`
+
+Frontend:
+- `NEXT_PUBLIC_API_BASE_URL`: Base URL for backend (e.g., `http://localhost:8000`)
+
 ## Deployment
 - Frontend: deploy `frontend/` to Vercel. Set `NEXT_PUBLIC_API_BASE_URL` to your backend URL.
 - Backend: deploy FastAPI to Railway/Render. Persist Chroma by mounting a volume at `CHROMA_PERSIST_DIRECTORY`.
