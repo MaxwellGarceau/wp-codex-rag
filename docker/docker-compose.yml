@@ -24,5 +24,26 @@ services:
     ports:
       - "6379:6379"
 
+  fastapi:
+    build: ..
+    container_name: fastapi-backend
+    restart: always
+    ports:
+      - "8000:8000"
+    environment:
+      - ENV=local
+      - DEBUG=true
+      - WRITER_DB_URL=mysql+aiomysql://fastapi:fastapi@mysql:3306/fastapi
+      - READER_DB_URL=mysql+aiomysql://fastapi:fastapi@mysql:3306/fastapi
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-your_openai_api_key_here}
+    depends_on:
+      - mysql
+      - redis
+    volumes:
+      - ../.chroma:/app/.chroma
+    command: ["python", "main.py", "--env", "local"]
+
 volumes:
   mysqldb:
