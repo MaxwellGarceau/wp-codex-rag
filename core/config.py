@@ -17,6 +17,12 @@ class Config(BaseSettings):
     CELERY_BACKEND_URL: str = "redis://:password123@localhost:6379/0"
     REDIS_HOST: str = "localhost"
     REDIS_PORT: int = 6379
+    # RAG/Vector/LLM settings
+    OPENAI_API_KEY: str = ""
+    OPENAI_MODEL: str = "gpt-4o-mini"
+    OPENAI_EMBEDDING_MODEL: str = "text-embedding-3-small"
+    CHROMA_PERSIST_DIRECTORY: str = ".chroma"
+    RAG_COLLECTION_NAME: str = "wp_codex_plugin"
 
 
 class TestConfig(Config):

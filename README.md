@@ -1,3 +1,30 @@
+# RAG: WordPress Codex Q&A
+
+## Overview
+This app adds a Retrieval-Augmented Generation (RAG) pipeline using Chroma and OpenAI to answer WordPress questions. It ingests WordPress Codex content (plugin development scope) into a vector store, retrieves relevant chunks, and forwards enriched prompts to an LLM.
+
+## Setup
+- Ensure Python dependencies are installed via Poetry
+- Create a `.env` (see `.env.example`) and set `OPENAI_API_KEY`
+- Optional: adjust `OPENAI_MODEL`, `OPENAI_EMBEDDING_MODEL`, `CHROMA_PERSIST_DIRECTORY`, `RAG_COLLECTION_NAME`
+
+## Ingestion
+```shell
+poetry run python scripts/ingest_wp_codex.py --section plugin
+```
+This fetches WordPress docs and stores embeddings in Chroma under the configured collection.
+
+## API Endpoint
+- `POST /api/v1/rag/query` with body `{ "question": "..." }`
+- Returns `{ "answer": "...", "sources": [ {"title":..., "url":...} ] }`
+
+## Frontend
+A Next.js 14 app in `frontend/` provides a minimal chat-like UI to submit questions to the backend.
+
+## Deployment
+- Frontend: deploy `frontend/` to Vercel. Set `NEXT_PUBLIC_API_BASE_URL` to your backend URL.
+- Backend: deploy FastAPI to Railway/Render. Persist Chroma by mounting a volume at `CHROMA_PERSIST_DIRECTORY`.
+
 # FastAPI Boilerplate
 
 # Features
