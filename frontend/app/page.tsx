@@ -1,12 +1,13 @@
 "use client";
 import { useState } from "react";
+import { RAGClient, RAGSource } from "./services/ragClient";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000";
+const client = new RAGClient();
 
 export default function HomePage() {
   const [question, setQuestion] = useState("");
   const [answer, setAnswer] = useState<string | null>(null);
-  const [sources, setSources] = useState<{ title: string; url: string }[]>([]);
+  const [sources, setSources] = useState<RAGSource[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -16,16 +17,7 @@ export default function HomePage() {
     setAnswer(null);
     setSources([]);
     try {
-      const res = await fetch(`${API_BASE}/api/v1/rag/query`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ question }),
-      });
-      if (!res.ok) {
-        const t = await res.text();
-        throw new Error(t || `HTTP ${res.status}`);
-      }
-      const data = await res.json();
+      const data = await client.query(question);
       setAnswer(data.answer);
       setSources(data.sources || []);
     } catch (e: any) {
