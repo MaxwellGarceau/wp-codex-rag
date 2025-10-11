@@ -57,6 +57,15 @@ def init_listeners(app_: FastAPI) -> None:
             exception=exc,
             error_type="api_error"
         )
+    
+    # General exception handler for any unhandled exceptions
+    @app_.exception_handler(Exception)
+    async def general_exception_handler(request: Request, exc: Exception):
+        return create_error_response_from_exception(
+            status_code=500,
+            exception=exc,
+            error_type="internal_error"
+        )
 
 
 def on_auth_error(request: Request, exc: Exception):

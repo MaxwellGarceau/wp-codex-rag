@@ -90,6 +90,6 @@ class RAGService(RAGUseCase):
             raise e
         except Exception as e:
             logger.error(f"Unexpected error in RAG query: {str(e)}", exc_info=True)
-            # For other errors, wrap them in a generic message
-            raise Exception(f"An error occurred while processing your request: {str(e)}")
+            # Re-raise the original exception to preserve all its properties
+            raise e
 
