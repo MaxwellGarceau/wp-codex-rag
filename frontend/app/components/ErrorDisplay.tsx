@@ -6,16 +6,19 @@ interface ErrorDisplayProps {
 }
 
 export function ErrorDisplay({ error, onDismiss }: ErrorDisplayProps) {
-  const parseError = (error: string): { statusCode?: string; errorCode?: string; message: string } => {
+  const parseError = (error: string): { statusCode?: string; errorType?: string; message: string; code?: string; param?: string; errorData?: any } => {
     // Try to parse as structured error response first
     try {
-      const errorData = JSON.parse(error);
+      const errorData = JSON.parse(error) as any; // Use any since we add statusCode in RAG client
       if (errorData.error) {
-        const { message, type, code } = errorData.error;
+        const { message, type, code, param } = errorData.error;
         return {
           statusCode: errorData.statusCode?.toString(),
-          errorCode: errorData.errorCode || code || type || "unknown",
-          message: message || "An error occurred"
+          errorType: type,
+          message,
+          code,
+          param,
+          errorData
         };
       }
     } catch {
@@ -28,7 +31,7 @@ export function ErrorDisplay({ error, onDismiss }: ErrorDisplayProps) {
     };
   };
 
-  const { statusCode, errorCode, message } = parseError(error);
+  const { statusCode, errorType, message, code, param, errorData } = parseError(error);
 
   return (
     <div className="rounded-md border border-red-200 bg-red-50 p-4">
@@ -49,12 +52,16 @@ export function ErrorDisplay({ error, onDismiss }: ErrorDisplayProps) {
         </div>
         <div className="ml-3 flex-1">
           <div className="text-sm text-red-700">
-            {statusCode && errorCode && (
-              <p className="font-mono font-medium mb-1">
-                Error code: {statusCode} - {errorCode}
+            {statusCode && errorType && (
+              <p className="font-mono font-medium mb-2">
+                Error code: {statusCode} - {errorType}
               </p>
             )}
-            <p className="whitespace-pre-wrap">{message}</p>
+            <ul className="list-disc pl-4 space-y-1">
+              <li><strong>Message:</strong> {message}</li>
+              <li><strong>Code:</strong> {code || "Not provided"}</li>
+              <li><strong>Param:</strong> {param || "Not provided"}</li>
+            </ul>
           </div>
         </div>
         {onDismiss && (
