@@ -30,11 +30,18 @@ def create_error_response_from_exception(
         "code": getattr(exception, 'code', "Not provided")
     }
     
-    # Add any additional properties from the original exception
+    # Add any additional properties from the original exception that are JSON serializable
     if hasattr(exception, '__dict__'):
         for key, value in exception.__dict__.items():
             if key not in error_data and not key.startswith('_'):
-                error_data[key] = value
+                # Only include JSON serializable values
+                try:
+                    import json
+                    json.dumps(value)  # Test if it's JSON serializable
+                    error_data[key] = value
+                except (TypeError, ValueError):
+                    # Convert non-serializable objects to strings
+                    error_data[key] = str(value)
     
     error_response = ErrorResponse(error=error_data)
     
