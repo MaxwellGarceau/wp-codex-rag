@@ -27,8 +27,8 @@ def create_error_response_from_exception(
     error_data = {
         "message": str(exception) if str(exception) else "Not provided",
         "type": error_type,
-        "param": getattr(exception, 'param', "Not provided"),
-        "code": getattr(exception, 'code', "Not provided")
+        "param": getattr(exception, 'param', "Not provided") or "Not provided",
+        "code": getattr(exception, 'code', "Not provided") or "Not provided"
     }
     
     # Add any additional properties from the original exception that are JSON serializable
