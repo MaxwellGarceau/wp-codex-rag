@@ -36,10 +36,13 @@ export class RAGClient {
 				try {
 					const errorData = JSON.parse(errorText) as ErrorResponse;
 					if (errorData.error?.message) {
-						// Format: "Error code: {status} - {error_code}\n{message}"
-						const statusCode = res.status.toString();
-						const errorCode = errorData.error.code || errorData.error.type || "unknown";
-						errorMessage = `Error code: ${statusCode} - ${errorCode}\n${errorData.error.message}`;
+						// Create a structured error object that includes status code
+						const structuredError = {
+							...errorData,
+							statusCode: res.status,
+							errorCode: errorData.error.code || errorData.error.type || "unknown"
+						};
+						errorMessage = JSON.stringify(structuredError);
 					}
 				} catch {
 					// If JSON parsing fails, use the raw text or default message
