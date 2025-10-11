@@ -11,6 +11,16 @@ def start():
     """Start the development server with live reload"""
     os.environ["ENV"] = "local"
     os.environ["DEBUG"] = "true"
+    
+    # Import and setup logging configuration
+    from core.logging_config import setup_logging
+    setup_logging()
+    
+    # Test logging
+    import logging
+    logger = logging.getLogger("scripts")
+    logger.info("Starting development server with logging configuration...")
+    
     subprocess.run([
         "uvicorn",
         "app.server:app",
