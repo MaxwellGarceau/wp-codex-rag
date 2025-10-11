@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Any, Dict
 
 from fastapi import HTTPException
 from fastapi.responses import JSONResponse
@@ -6,15 +6,54 @@ from fastapi.responses import JSONResponse
 from core.dto.error_response import ErrorResponse
 
 
+def create_error_response_from_exception(
+    status_code: int,
+    exception: Exception,
+    error_type: str = "Not provided"
+) -> JSONResponse:
+    """
+    Create a standardized error response from an exception, preserving original properties.
+    
+    Args:
+        status_code: HTTP status code
+        exception: The original exception
+        error_type: Error type identifier (defaults to "Not provided")
+        
+    Returns:
+        JSONResponse with standardized error format preserving original properties
+    """
+    # Extract properties from the original exception
+    error_data = {
+        "message": str(exception) if str(exception) else "Not provided",
+        "type": error_type,
+        "param": getattr(exception, 'param', "Not provided"),
+        "code": getattr(exception, 'code', "Not provided")
+    }
+    
+    # Add any additional properties from the original exception
+    if hasattr(exception, '__dict__'):
+        for key, value in exception.__dict__.items():
+            if key not in error_data and not key.startswith('_'):
+                error_data[key] = value
+    
+    error_response = ErrorResponse(error=error_data)
+    
+    return JSONResponse(
+        status_code=status_code,
+        content=error_response.model_dump(),
+    )
+
+
 def create_error_response(
     status_code: int,
     message: str,
     error_type: str,
     param: Optional[str] = None,
-    code: Optional[str] = None
+    code: Optional[str] = None,
+    **additional_properties
 ) -> JSONResponse:
     """
-    Create a standardized error response.
+    Create a standardized error response with fallbacks.
     
     Args:
         status_code: HTTP status code
@@ -22,18 +61,22 @@ def create_error_response(
         error_type: Error type identifier
         param: Parameter that caused the error (optional)
         code: Error code (optional)
+        **additional_properties: Additional properties to include
         
     Returns:
         JSONResponse with standardized error format
     """
-    error_response = ErrorResponse(
-        error={
-            "message": message,
-            "type": error_type,
-            "param": param,
-            "code": code or error_type
-        }
-    )
+    error_data = {
+        "message": message or "Not provided",
+        "type": error_type or "Not provided",
+        "param": param if param is not None else "Not provided",
+        "code": code or error_type or "Not provided"
+    }
+    
+    # Add any additional properties
+    error_data.update(additional_properties)
+    
+    error_response = ErrorResponse(error=error_data)
     
     return JSONResponse(
         status_code=status_code,
@@ -46,10 +89,11 @@ def create_http_exception(
     message: str,
     error_type: str,
     param: Optional[str] = None,
-    code: Optional[str] = None
+    code: Optional[str] = None,
+    **additional_properties
 ) -> HTTPException:
     """
-    Create a standardized HTTP exception.
+    Create a standardized HTTP exception with fallbacks.
     
     Args:
         status_code: HTTP status code
@@ -57,18 +101,22 @@ def create_http_exception(
         error_type: Error type identifier
         param: Parameter that caused the error (optional)
         code: Error code (optional)
+        **additional_properties: Additional properties to include
         
     Returns:
         HTTPException with standardized error format
     """
-    error_response = ErrorResponse(
-        error={
-            "message": message,
-            "type": error_type,
-            "param": param,
-            "code": code or error_type
-        }
-    )
+    error_data = {
+        "message": message or "Not provided",
+        "type": error_type or "Not provided",
+        "param": param if param is not None else "Not provided",
+        "code": code or error_type or "Not provided"
+    }
+    
+    # Add any additional properties
+    error_data.update(additional_properties)
+    
+    error_response = ErrorResponse(error=error_data)
     
     return HTTPException(
         status_code=status_code,
