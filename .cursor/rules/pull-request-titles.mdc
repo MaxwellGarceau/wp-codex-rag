@@ -1,0 +1,7 @@
+---
+alwaysApply: true
+---
+When making a pull request format the title with the sprint followed by a "/" followed by the Jira ticket number followed by the Jira ticket name.
+
+Example (with Jira ticket number): "Sprint 1 / [WCR-1] Setup Project"
+Example (no Jira ticket number): "Sprint 1 / [WCR] Setup Project"
