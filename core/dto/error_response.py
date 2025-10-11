@@ -4,12 +4,12 @@ from pydantic import BaseModel, Field
 
 
 class ErrorDetail(BaseModel):
-    """Error detail structure for API responses - preserves original error properties."""
+    """Error detail structure for API responses - matches frontend contract."""
     
     message: str = Field(default="Not provided", description="Human-readable error message")
+    statusCode: int = Field(default=500, description="HTTP status code")
     type: str = Field(default="Not provided", description="Error type identifier")
-    param: str = Field(default="Not provided", description="Parameter that caused the error")
-    code: str = Field(default="Not provided", description="Error code")
+    providerCode: str = Field(default="Not provided", description="Provider error code")
     
     # Allow additional properties from original errors
     class Config:
@@ -17,9 +17,9 @@ class ErrorDetail(BaseModel):
         json_schema_extra = {
             "example": {
                 "message": "You exceeded your current quota, please check your plan and billing details.",
-                "type": "insufficient_quota",
-                "param": "Not provided",
-                "code": "insufficient_quota"
+                "statusCode": 429,
+                "type": "rate_limit",
+                "providerCode": "insufficient_quota"
             }
         }
 
@@ -34,9 +34,9 @@ class ErrorResponse(BaseModel):
             "example": {
                 "error": {
                     "message": "You exceeded your current quota, please check your plan and billing details.",
-                    "type": "insufficient_quota",
-                    "param": "Not provided",
-                    "code": "insufficient_quota"
+                    "statusCode": 429,
+                    "type": "rate_limit",
+                    "providerCode": "insufficient_quota"
                 }
             }
         }

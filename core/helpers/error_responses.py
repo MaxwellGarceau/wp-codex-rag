@@ -36,9 +36,9 @@ def create_error_response_from_exception(
     
     error_data = {
         "message": clean_message,
+        "statusCode": status_code,
         "type": error_type,
-        "param": getattr(exception, 'param', "Not provided") or "Not provided",
-        "code": getattr(exception, 'code', "Not provided") or "Not provided"
+        "providerCode": getattr(exception, 'code', "Not provided") or "Not provided"
     }
     
     # Add any additional properties from the original exception that are JSON serializable
@@ -85,9 +85,9 @@ def create_error_response(
     """
     error_data = {
         "message": message or "Not provided",
+        "statusCode": status_code,
         "type": error_type or "Not provided",
-        "param": param if param is not None else "Not provided",
-        "code": code or error_type or "Not provided"
+        "providerCode": code or error_type or "Not provided"
     }
     
     # Add any additional properties
@@ -125,9 +125,9 @@ def create_http_exception(
     """
     error_data = {
         "message": message or "Not provided",
+        "statusCode": status_code,
         "type": error_type or "Not provided",
-        "param": param if param is not None else "Not provided",
-        "code": code or error_type or "Not provided"
+        "providerCode": code or error_type or "Not provided"
     }
     
     # Add any additional properties
