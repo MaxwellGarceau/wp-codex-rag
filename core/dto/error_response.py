@@ -8,8 +8,8 @@ class ErrorDetail(BaseModel):
     
     message: str = Field(default="Not provided", description="Human-readable error message")
     type: str = Field(default="Not provided", description="Error type identifier")
-    param: Optional[str] = Field(default="Not provided", description="Parameter that caused the error")
-    code: Optional[str] = Field(default="Not provided", description="Error code")
+    param: str = Field(default="Not provided", description="Parameter that caused the error")
+    code: str = Field(default="Not provided", description="Error code")
     
     # Allow additional properties from original errors
     class Config:
@@ -18,7 +18,7 @@ class ErrorDetail(BaseModel):
             "example": {
                 "message": "You exceeded your current quota, please check your plan and billing details.",
                 "type": "insufficient_quota",
-                "param": None,
+                "param": "Not provided",
                 "code": "insufficient_quota"
             }
         }
@@ -35,7 +35,7 @@ class ErrorResponse(BaseModel):
                 "error": {
                     "message": "You exceeded your current quota, please check your plan and billing details.",
                     "type": "insufficient_quota",
-                    "param": None,
+                    "param": "Not provided",
                     "code": "insufficient_quota"
                 }
             }

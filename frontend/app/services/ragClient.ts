@@ -7,8 +7,8 @@ export type ErrorResponse = {
   error: {
     message: string;
     type: string;
-    param?: string | null;
-    code?: string;
+    param: string;
+    code: string;
     // Allow additional properties from original errors
     [key: string]: any;
   };
