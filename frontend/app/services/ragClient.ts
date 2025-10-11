@@ -1,17 +1,17 @@
 export type RAGSource = { title: string; url: string };
 export type RAGQueryResponse = { answer: string; sources: RAGSource[] };
 
-// This type must match the backend ErrorResponse contract exactly
-// Backend preserves original error properties and provides "Not provided" fallbacks
+// Error properties structure - matches backend ErrorDetail contract
+export type ErrorProperties = {
+  message: string;
+  statusCode: number;
+  type: string;
+  providerCode: string;
+};
+
+// Complete error response structure - matches backend ErrorResponse contract
 export type ErrorResponse = {
-  error: {
-    message: string;
-    type: string;
-    param: string;
-    code: string;
-    // Allow additional properties from original errors
-    [key: string]: any;
-  };
+  error: ErrorProperties;
 };
 
 export class RAGClient {
@@ -35,14 +35,9 @@ export class RAGClient {
 
 				try {
 					const errorData = JSON.parse(errorText) as ErrorResponse;
-					if (errorData.error?.message) {
-						// Create a structured error object that includes status code
-						const structuredError = {
-							...errorData,
-							statusCode: res.status,
-							errorCode: errorData.error.code || errorData.error.type || "unknown"
-						};
-						errorMessage = JSON.stringify(structuredError);
+					if (errorData.error) {
+						// Pass the full structured error response
+						errorMessage = JSON.stringify(errorData);
 					}
 				} catch {
 					// If JSON parsing fails, use the raw text or default message
