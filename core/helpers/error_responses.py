@@ -1,3 +1,4 @@
+import json
 from typing import Optional, Any, Dict
 
 from fastapi import HTTPException
@@ -36,7 +37,6 @@ def create_error_response_from_exception(
             if key not in error_data and not key.startswith('_'):
                 # Only include JSON serializable values
                 try:
-                    import json
                     json.dumps(value)  # Test if it's JSON serializable
                     error_data[key] = value
                 except (TypeError, ValueError):
