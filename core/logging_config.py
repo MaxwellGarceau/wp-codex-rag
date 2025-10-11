@@ -59,6 +59,15 @@ def setup_logging() -> None:
     # Configure specific loggers
     _configure_third_party_loggers()
     
+    # Force set the level for our application loggers
+    app_logger = logging.getLogger("app")
+    app_logger.setLevel(log_level)
+    app_logger.propagate = True
+    
+    core_logger = logging.getLogger("core")
+    core_logger.setLevel(log_level)
+    core_logger.propagate = True
+    
     # Log the logging configuration
     logger = logging.getLogger(__name__)
     logger.info(f"Logging configured - Level: {logging.getLevelName(log_level)}")
