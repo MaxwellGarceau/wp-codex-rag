@@ -58,6 +58,13 @@ Frontend:
 
 ## Development Workflow
 
+TLDR: After installing dependencies start project by running docker container for DB/Cache and run the python server for FastAPI BE.
+
+```shell
+poetry run docker-up
+poetry run start
+```
+
 This project uses a **hybrid approach** for development:
 - **Docker**: Runs MySQL database and Redis cache services
 - **Local**: Runs the FastAPI application for faster development and debugging
