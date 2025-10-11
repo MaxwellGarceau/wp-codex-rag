@@ -1,37 +1,13 @@
-import { ErrorResponse } from "../services/ragClient";
+import { ErrorProperties } from "../services/ragClient";
 
 interface ErrorDisplayProps {
   error: string;
   onDismiss?: () => void;
 }
 
+// NOTE: Frontend relies on the BE contract for the error response
 export function ErrorDisplay({ error, onDismiss }: ErrorDisplayProps) {
-  const parseError = (error: string): { statusCode?: string; errorType?: string; message: string; code?: string; param?: string; errorData?: any } => {
-    // Try to parse as structured error response first
-    try {
-      const errorData = JSON.parse(error) as any; // Use any since we add statusCode in RAG client
-      if (errorData.error) {
-        const { message, type, code, param } = errorData.error;
-        return {
-          statusCode: errorData.statusCode?.toString(),
-          errorType: type,
-          message,
-          code,
-          param,
-          errorData
-        };
-      }
-    } catch {
-      // Not JSON, treat as plain text error
-    }
-
-    // For plain text errors, just display as-is
-    return {
-      message: error
-    };
-  };
-
-  const { statusCode, errorType, message, code, param, errorData } = parseError(error);
+  const { statusCode, type, message, providerCode } = JSON.parse(error) as ErrorProperties;
 
   return (
     <div className="rounded-md border border-red-200 bg-red-50 p-4">
@@ -52,15 +28,14 @@ export function ErrorDisplay({ error, onDismiss }: ErrorDisplayProps) {
         </div>
         <div className="ml-3 flex-1">
           <div className="text-sm text-red-700">
-            {statusCode && errorType && (
+            {statusCode && type && (
               <p className="font-mono font-medium mb-2">
-                Error code: {statusCode} - {errorType}
+                Error code: {statusCode} - {type}
               </p>
             )}
             <p className="whitespace-pre-wrap mb-2">{message}</p>
             <ul className="list-disc pl-4 space-y-1">
-              <li><strong>Provider Error Code:</strong> {code || "Not provided"}</li>
-              <li><strong>Param:</strong> {param || "Not provided"}</li>
+              <li><strong>Provider Error Code:</strong> {providerCode || "Not provided"}</li>
             </ul>
           </div>
         </div>

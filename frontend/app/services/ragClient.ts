@@ -37,11 +37,16 @@ export class RAGClient {
 					const errorData = JSON.parse(errorText) as ErrorResponse;
 					if (errorData.error) {
 						// Pass the full structured error response
-						errorMessage = JSON.stringify(errorData);
+						errorMessage = JSON.stringify(errorData.error);
 					}
 				} catch {
 					// If JSON parsing fails, use the raw text or default message
-					errorMessage = errorText || errorMessage;
+					errorMessage = JSON.stringify({
+						message: errorText || errorMessage,
+						statusCode: 0,
+						type: "Not provided",
+						providerCode: "Not provided"
+					});
 				}
 
 				throw new Error(errorMessage);

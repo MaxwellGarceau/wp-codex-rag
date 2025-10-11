@@ -65,8 +65,7 @@ def create_error_response(
     status_code: int,
     message: str,
     error_type: str,
-    param: Optional[str] = None,
-    code: Optional[str] = None,
+    providerCode: Optional[str] = None,
     **additional_properties
 ) -> JSONResponse:
     """
@@ -76,7 +75,7 @@ def create_error_response(
         status_code: HTTP status code
         message: Human-readable error message
         error_type: Error type identifier
-        param: Parameter that caused the error (optional)
+        providerCode: Provider error code (optional)
         code: Error code (optional)
         **additional_properties: Additional properties to include
         
@@ -87,7 +86,7 @@ def create_error_response(
         "message": message or "Not provided",
         "statusCode": status_code,
         "type": error_type or "Not provided",
-        "providerCode": code or error_type or "Not provided"
+        "providerCode": providerCode or error_type or "Not provided"
     }
     
     # Add any additional properties
@@ -105,8 +104,7 @@ def create_http_exception(
     status_code: int,
     message: str,
     error_type: str,
-    param: Optional[str] = None,
-    code: Optional[str] = None,
+    providerCode: Optional[str] = None,
     **additional_properties
 ) -> HTTPException:
     """
@@ -116,7 +114,7 @@ def create_http_exception(
         status_code: HTTP status code
         message: Human-readable error message
         error_type: Error type identifier
-        param: Parameter that caused the error (optional)
+        providerCode: Provider error code (optional)
         code: Error code (optional)
         **additional_properties: Additional properties to include
         
@@ -127,7 +125,7 @@ def create_http_exception(
         "message": message or "Not provided",
         "statusCode": status_code,
         "type": error_type or "Not provided",
-        "providerCode": code or error_type or "Not provided"
+        "providerCode": providerCode or error_type or "Not provided"
     }
     
     # Add any additional properties
