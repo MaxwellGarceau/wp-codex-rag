@@ -2,12 +2,15 @@ export type RAGSource = { title: string; url: string };
 export type RAGQueryResponse = { answer: string; sources: RAGSource[] };
 
 // This type must match the backend ErrorResponse contract exactly
+// Backend preserves original error properties and provides "Not provided" fallbacks
 export type ErrorResponse = {
   error: {
     message: string;
     type: string;
     param?: string | null;
     code?: string;
+    // Allow additional properties from original errors
+    [key: string]: any;
   };
 };
 
