@@ -10,7 +10,7 @@ from app.rag.adapter.input.api import router as rag_router
 from core.config import config
 from core.exceptions import CustomException
 from core.fastapi.dependencies import Logging
-from core.fastapi.exception_handlers import register_exception_handlers
+from core.exceptions.handlers import register_exception_handlers
 from core.fastapi.middlewares import (
     AuthBackend,
     AuthenticationMiddleware,

@@ -1,5 +1,8 @@
 """
-FastAPI exception handlers for standardized error responses.
+Exception handlers for standardized error responses.
+
+This module contains FastAPI exception handlers that provide consistent
+error response formatting across the application.
 """
 from fastapi import Request
 from openai import RateLimitError, APIError
