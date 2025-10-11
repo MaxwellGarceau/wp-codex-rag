@@ -57,9 +57,9 @@ export function ErrorDisplay({ error, onDismiss }: ErrorDisplayProps) {
                 Error code: {statusCode} - {errorType}
               </p>
             )}
+            <p className="whitespace-pre-wrap mb-2">{message}</p>
             <ul className="list-disc pl-4 space-y-1">
-              <li><strong>Message:</strong> {message}</li>
-              <li><strong>Code:</strong> {code || "Not provided"}</li>
+              <li><strong>Provider Error Code:</strong> {code || "Not provided"}</li>
               <li><strong>Param:</strong> {param || "Not provided"}</li>
             </ul>
           </div>
