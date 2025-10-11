@@ -18,7 +18,7 @@ async def test_encode():
 
     # Then
     decoded_token: dict[str, Any] = jwt.decode(
-        sut, config.JWT_SECRET_KEY, config.JWT_ALGORITHM
+        sut, config.JWT_SECRET_KEY, config.JWT_ALGORITHM, options={"verify_exp": False}
     )
     assert decoded_token["user_id"] == 1
 

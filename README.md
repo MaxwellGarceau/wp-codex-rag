@@ -1,35 +1,98 @@
-# FastAPI Boilerplate
+# RAG: WordPress Codex Q&A
+
+## Overview
+This app adds a Retrieval-Augmented Generation (RAG) pipeline using Chroma and OpenAI to answer WordPress questions. It ingests WordPress Codex content (plugin development scope) into a vector store, retrieves relevant chunks, and forwards enriched prompts to an LLM.
+
+## Setup
+- Ensure Python dependencies are installed via Poetry
+- Create a `.env` (see `.env.example`) and set `OPENAI_API_KEY`
+- Optional: adjust `OPENAI_MODEL`, `OPENAI_EMBEDDING_MODEL`, `CHROMA_PERSIST_DIRECTORY`, `RAG_COLLECTION_NAME`
+
+## Ingestion
+```shell
+poetry run python scripts/ingest_wp_codex.py --section plugin
+```
+This fetches WordPress docs and stores embeddings in Chroma under the configured collection.
+
+## API Endpoint
+- `POST /api/v1/rag/query` with body `{ "question": "..." }`
+- Returns `{ "answer": "...", "sources": [ {"title":..., "url":...} ] }`
+
+## Frontend
+A Next.js 14 app in `frontend/` provides a minimal chat-like UI to submit questions to the backend.
+
+### Frontend dev
+```bash
+cd frontend
+npm install
+npm run dev
+```
+Set `NEXT_PUBLIC_API_BASE_URL` in your frontend environment when needed.
+
+### Environment
+Backend uses variables in `core/config.py`. Create `.env` based on the following:
+
+- `OPENAI_API_KEY`: Your OpenAI API key
+- `OPENAI_MODEL`: Defaults to `gpt-4o-mini`
+- `OPENAI_EMBEDDING_MODEL`: Defaults to `text-embedding-3-small`
+- `CHROMA_PERSIST_DIRECTORY`: Directory for Chroma persistence (mount a volume in prod)
+- `RAG_COLLECTION_NAME`: Defaults to `wp_codex_plugin`
+
+Frontend:
+- `NEXT_PUBLIC_API_BASE_URL`: Base URL for backend (e.g., `http://localhost:8000`)
+
+## Deployment
+- Frontend: deploy `frontend/` to Vercel. Set `NEXT_PUBLIC_API_BASE_URL` to your backend URL.
+- Backend: deploy FastAPI to Railway/Render. Persist Chroma by mounting a volume at `CHROMA_PERSIST_DIRECTORY`.
+
+# FastAPI Boilerplate (modified)
 
 # Features
 - Async SQLAlchemy session
 - Custom user class
 - Dependencies for specific permissions
 - Celery
-- Dockerize(Hot reload)
+- Hot reload (local development)
 - Event dispatcher
 - Cache
 
-## Run
+## Development Workflow
 
-### Launch docker
+TLDR: After installing dependencies start project by running docker container for DB/Cache and run the python server for FastAPI BE.
+
 ```shell
-> docker-compose -f docker/docker-compose.yml up
+poetry run docker-up
+poetry run start
 ```
 
-### Install dependency
+This project uses a **hybrid approach** for development:
+- **Docker**: Runs MySQL database and Redis cache services
+- **Local**: Runs the FastAPI application for faster development and debugging
+
+### Start Docker Services (MySQL + Redis)
 ```shell
-> poetry shell
+> poetry run docker-up
+# or manually:
+> docker-compose -f docker/docker-compose.yml up mysql redis
+```
+
+### Install Dependencies
+```shell
 > poetry install
 ```
 
-### Apply alembic revision
+### Run Database Migrations
 ```shell
-> alembic upgrade head
+> poetry run migrate
+# or manually:
+> poetry run alembic upgrade head
 ```
 
-### Run server
+### Start Development Server
 ```shell
-> python3 main.py --env local|dev|prod --debug
+> poetry run start
+# or manually:
+> poetry run python main.py --env local --debug
 ```
 
 ### Run test codes

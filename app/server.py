@@ -6,6 +6,7 @@ from fastapi.responses import JSONResponse
 from app.auth.adapter.input.api import router as auth_router
 from app.container import Container
 from app.user.adapter.input.api import router as user_router
+from app.rag.adapter.input.api import router as rag_router
 from core.config import config
 from core.exceptions import CustomException
 from core.fastapi.dependencies import Logging
@@ -24,6 +25,8 @@ def init_routers(app_: FastAPI) -> None:
     auth_router.container = container
     app_.include_router(user_router)
     app_.include_router(auth_router)
+    rag_router.container = container
+    app_.include_router(rag_router)
 
 
 def init_listeners(app_: FastAPI) -> None:
