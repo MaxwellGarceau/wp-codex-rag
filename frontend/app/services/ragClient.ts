@@ -1,6 +1,15 @@
 export type RAGSource = { title: string; url: string };
 export type RAGQueryResponse = { answer: string; sources: RAGSource[] };
 
+export type ErrorResponse = {
+  error: {
+    message: string;
+    type: string;
+    param?: string | null;
+    code?: string;
+  };
+};
+
 export class RAGClient {
 	private readonly baseUrl: string;
 
@@ -15,8 +24,20 @@ export class RAGClient {
 			body: JSON.stringify({ question }),
 		});
 		if (!res.ok) {
-			const t = await res.text();
-			throw new Error(t || `HTTP ${res.status}`);
+			const errorText = await res.text();
+			let errorMessage = `HTTP ${res.status}: ${res.statusText}`;
+
+			try {
+				const errorData = JSON.parse(errorText) as ErrorResponse;
+				if (errorData.error?.message) {
+					errorMessage = errorData.error.message;
+				}
+			} catch {
+				// If JSON parsing fails, use the raw text or default message
+				errorMessage = errorText || errorMessage;
+			}
+
+			throw new Error(errorMessage);
 		}
 		return (await res.json()) as RAGQueryResponse;
 	}
