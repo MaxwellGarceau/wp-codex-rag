@@ -23,6 +23,8 @@ class Config(BaseSettings):
     OPENAI_EMBEDDING_MODEL: str = "text-embedding-3-small"
     CHROMA_PERSIST_DIRECTORY: str = ".chroma"
     RAG_COLLECTION_NAME: str = "wp_codex_plugin"
+    # CORS settings
+    CORS_ORIGINS: str = "http://localhost:3000,http://localhost:3001"
 
     class Config:
         env_file = ".env"
@@ -40,6 +42,7 @@ class LocalConfig(Config):
 
 class ProductionConfig(Config):
     DEBUG: bool = False
+    CORS_ORIGINS: str = "https://yourdomain.com,https://www.yourdomain.com"
 
 
 def get_config():

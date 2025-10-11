@@ -2,6 +2,7 @@ from fastapi import Depends, FastAPI, Request
 from fastapi.middleware import Middleware
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from openai import RateLimitError, APIError
 
 from app.auth.adapter.input.api import router as auth_router
 from app.container import Container
@@ -37,6 +38,21 @@ def init_listeners(app_: FastAPI) -> None:
             status_code=exc.code,
             content={"error_code": exc.error_code, "message": exc.message},
         )
+    
+    # OpenAI API error handlers
+    @app_.exception_handler(RateLimitError)
+    async def rate_limit_handler(request: Request, exc: RateLimitError):
+        return JSONResponse(
+            status_code=429,
+            content={"error": {"message": str(exc), "type": "rate_limit", "code": "rate_limit"}},
+        )
+    
+    @app_.exception_handler(APIError)
+    async def api_error_handler(request: Request, exc: APIError):
+        return JSONResponse(
+            status_code=500,
+            content={"error": {"message": str(exc), "type": "api_error", "code": "api_error"}},
+        )
 
 
 def on_auth_error(request: Request, exc: Exception):
@@ -53,10 +69,13 @@ def on_auth_error(request: Request, exc: Exception):
 
 
 def make_middleware() -> list[Middleware]:
+    # Parse CORS origins from config
+    cors_origins = config.CORS_ORIGINS.split(",") if config.CORS_ORIGINS else []
+    
     middleware = [
         Middleware(
             CORSMiddleware,
-            allow_origins=["*"],
+            allow_origins=cors_origins,
             allow_credentials=True,
             allow_methods=["*"],
             allow_headers=["*"],
