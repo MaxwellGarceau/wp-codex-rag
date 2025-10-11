@@ -4,6 +4,38 @@ interface ErrorDisplayProps {
 }
 
 export function ErrorDisplay({ error, onDismiss }: ErrorDisplayProps) {
+  const formatErrorMessage = (error: string): { statusCode?: string; errorCode?: string; message: string } => {
+    // Try to parse as JSON first (structured error response)
+    try {
+      const errorData = JSON.parse(error);
+      if (errorData.error) {
+        const { message, type, code } = errorData.error;
+        return {
+          statusCode: "Unknown",
+          errorCode: code || type || "unknown",
+          message: message || "An error occurred"
+        };
+      }
+    } catch {
+      // Not JSON, try to extract from error message format
+    }
+
+    // Try to extract status code and error code from error message
+    // Look for patterns like "Error code: 429 - insufficient_quota" or "HTTP 500: Internal Server Error"
+    const statusCodeMatch = error.match(/(?:HTTP\s+)?(\d{3})/);
+    const errorCodeMatch = error.match(/(?:Error code:\s*\d+\s*-\s*)?([a-zA-Z_]+)/);
+    
+    // Extract the main error message (everything after the first colon or dash)
+    const messageMatch = error.match(/(?:Error code:\s*\d+\s*-\s*[a-zA-Z_]+\s*)?(.*)/);
+    
+    return {
+      statusCode: statusCodeMatch ? statusCodeMatch[1] : undefined,
+      errorCode: errorCodeMatch ? errorCodeMatch[1] : undefined,
+      message: messageMatch ? messageMatch[1].trim() : error
+    };
+  };
+
+  const { statusCode, errorCode, message } = formatErrorMessage(error);
 
   return (
     <div className="rounded-md border border-red-200 bg-red-50 p-4">
@@ -24,7 +56,12 @@ export function ErrorDisplay({ error, onDismiss }: ErrorDisplayProps) {
         </div>
         <div className="ml-3 flex-1">
           <div className="text-sm text-red-700">
-            <p className="whitespace-pre-wrap">{error}</p>
+            {statusCode && errorCode && (
+              <p className="font-mono font-medium mb-1">
+                Error code: {statusCode} - {errorCode}
+              </p>
+            )}
+            <p className="whitespace-pre-wrap">{message}</p>
           </div>
         </div>
         {onDismiss && (
