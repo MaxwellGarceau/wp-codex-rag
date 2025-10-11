@@ -40,8 +40,8 @@ def seed():
 
 
 def docker_up():
-    """Start Docker services"""
-    subprocess.run(["docker-compose", "-f", "docker/docker-compose.yml", "up"])
+    """Start Docker services (MySQL and Redis)"""
+    subprocess.run(["docker-compose", "-f", "docker/docker-compose.yml", "up", "mysql", "redis"])
 
 def docker_down():
     """Stop Docker services"""

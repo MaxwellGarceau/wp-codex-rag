@@ -56,27 +56,36 @@ Frontend:
 - Event dispatcher
 - Cache
 
-## Run
+## Development Workflow
 
-### Launch docker
+This project uses a **hybrid approach** for development:
+- **Docker**: Runs MySQL database and Redis cache services
+- **Local**: Runs the FastAPI application for faster development and debugging
+
+### Start Docker Services (MySQL + Redis)
 ```shell
-> docker-compose -f docker/docker-compose.yml up
+> poetry run docker-up
+# or manually:
+> docker-compose -f docker/docker-compose.yml up mysql redis
 ```
 
-### Install dependency
+### Install Dependencies
 ```shell
-> poetry shell
 > poetry install
 ```
 
-### Apply alembic revision
+### Run Database Migrations
 ```shell
-> alembic upgrade head
+> poetry run migrate
+# or manually:
+> poetry run alembic upgrade head
 ```
 
-### Run server
+### Start Development Server
 ```shell
-> python3 main.py --env local|dev|prod --debug
+> poetry run start
+# or manually:
+> poetry run python main.py --env local --debug
 ```
 
 ### Run test codes
