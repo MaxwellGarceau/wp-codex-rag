@@ -8,10 +8,16 @@ import os
 
 
 def start():
-    """Start the development server"""
+    """Start the development server with live reload"""
     os.environ["ENV"] = "local"
     os.environ["DEBUG"] = "true"
-    subprocess.run([sys.executable, "main.py", "--env", "local", "--debug"])
+    subprocess.run([
+        "uvicorn",
+        "app.server:app",
+        "--host", "0.0.0.0",
+        "--port", "8000",
+        "--reload"
+    ])
 
 
 def migrate():
