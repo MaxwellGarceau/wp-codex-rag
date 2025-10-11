@@ -24,8 +24,18 @@ def create_error_response_from_exception(
         JSONResponse with standardized error format preserving original properties
     """
     # Extract properties from the original exception
+    # For OpenAI exceptions, try to get the clean message from the exception's body.message
+    # Otherwise fall back to str(exception)
+    clean_message = "Not provided"
+    if hasattr(exception, 'body') and isinstance(exception.body, dict) and 'message' in exception.body:
+        clean_message = str(exception.body['message'])
+    elif hasattr(exception, 'message') and exception.message:
+        clean_message = str(exception.message)
+    elif str(exception):
+        clean_message = str(exception)
+    
     error_data = {
-        "message": str(exception) if str(exception) else "Not provided",
+        "message": clean_message,
         "type": error_type,
         "param": getattr(exception, 'param', "Not provided") or "Not provided",
         "code": getattr(exception, 'code', "Not provided") or "Not provided"
