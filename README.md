@@ -45,14 +45,14 @@ Frontend:
 - Frontend: deploy `frontend/` to Vercel. Set `NEXT_PUBLIC_API_BASE_URL` to your backend URL.
 - Backend: deploy FastAPI to Railway/Render. Persist Chroma by mounting a volume at `CHROMA_PERSIST_DIRECTORY`.
 
-# FastAPI Boilerplate
+# FastAPI Boilerplate (modified)
 
 # Features
 - Async SQLAlchemy session
 - Custom user class
 - Dependencies for specific permissions
 - Celery
-- Dockerize(Hot reload)
+- Hot reload (local development)
 - Event dispatcher
 - Cache
 
