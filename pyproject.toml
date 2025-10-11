@@ -35,6 +35,15 @@ langchain-openai = "^0.2.0"
 pytest = "^7.4.4"
 types-redis = "^4.6.0.20240106"
 
+[tool.poetry.scripts]
+start = "uvicorn main:app --reload --host 0.0.0.0 --port 8000"
+test = "pytest"
+test-cov = "pytest --cov=app --cov-report=html"
+migrate = "alembic upgrade head"
+migrate-create = "alembic revision --autogenerate -m"
+seed = "python scripts/ingest_wp_codex.py"
+docker-up = "docker-compose -f docker/docker-compose.yml up"
+
 [tool.coverage.run]
 omit=["tests/*", "test_*.py", "migrations/*"]
 
