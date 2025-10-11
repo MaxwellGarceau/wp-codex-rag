@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { RAGClient, RAGSource } from "./services/ragClient";
+import { ErrorDisplay } from "./components/ErrorDisplay";
 
 const client = new RAGClient();
 
@@ -51,9 +52,10 @@ export default function HomePage() {
       </section>
 
       {error && (
-        <div className="rounded-md border border-red-200 bg-red-50 p-3 text-red-700">
-          {error}
-        </div>
+        <ErrorDisplay
+          error={error}
+          onDismiss={() => setError(null)}
+        />
       )}
 
       {answer && (

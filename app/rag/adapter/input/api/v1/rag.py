@@ -1,22 +1,37 @@
 from dependency_injector.wiring import Provide, inject
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 
 from app.container import Container
 from app.rag.application.dto import RAGQueryRequestDTO, RAGQueryResponseDTO
 from app.rag.domain.usecase.rag import RAGUseCase
+from core.dto.error_response import ErrorResponse
+from core.helpers.error_responses import create_http_exception
 
 
 rag_router = APIRouter()
 
 
-@rag_router.post("/query", response_model=RAGQueryResponseDTO)
+@rag_router.post(
+    "/query", 
+    response_model=RAGQueryResponseDTO,
+    responses={
+        400: {"model": ErrorResponse, "description": "Bad Request"},
+        429: {"model": ErrorResponse, "description": "Rate Limit Exceeded"},
+        500: {"model": ErrorResponse, "description": "Internal Server Error"},
+    }
+)
 @inject
 async def query_rag(
     request: RAGQueryRequestDTO,
     usecase: RAGUseCase = Depends(Provide[Container.rag_service]),
 ):
-    result = await usecase.query(question=request.question)
-    return result
+    try:
+        result = await usecase.query(question=request.question)
+        return result
+    except Exception as e:
+        # This will be handled by the global exception handlers
+        # but we can also add specific error handling here if needed
+        raise e
 
 
 @rag_router.get("/health")

@@ -1,6 +1,19 @@
 export type RAGSource = { title: string; url: string };
 export type RAGQueryResponse = { answer: string; sources: RAGSource[] };
 
+// Error properties structure - matches backend ErrorDetail contract
+export type ErrorProperties = {
+  message: string;
+  statusCode: number | string;
+  type: string;
+  providerCode: string;
+};
+
+// Complete error response structure - matches backend ErrorResponse contract
+export type ErrorResponse = {
+  error: ErrorProperties;
+};
+
 export class RAGClient {
 	private readonly baseUrl: string;
 
@@ -9,16 +22,41 @@ export class RAGClient {
 	}
 
 	async query(question: string): Promise<RAGQueryResponse> {
-		const res = await fetch(`${this.baseUrl}/api/v1/rag/query`, {
-			method: "POST",
-			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify({ question }),
-		});
-		if (!res.ok) {
-			const t = await res.text();
-			throw new Error(t || `HTTP ${res.status}`);
+		try {
+			const res = await fetch(`${this.baseUrl}/api/v1/rag/query`, {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ question }),
+			});
+			
+			if (!res.ok) {
+				const errorText = await res.text();
+				let errorMessage = `HTTP ${res.status}: ${res.statusText}`;
+
+				try {
+					const errorData = JSON.parse(errorText) as ErrorResponse;
+					if (errorData.error) {
+						// Pass the full structured error response
+						errorMessage = JSON.stringify(errorData.error);
+					}
+				} catch {
+					// If JSON parsing fails, use the raw text or default message
+					errorMessage = JSON.stringify({
+						message: errorText || errorMessage,
+						statusCode: 0,
+						type: "Not provided",
+						providerCode: "Not provided"
+					});
+				}
+
+				throw new Error(errorMessage);
+			}
+			return (await res.json()) as RAGQueryResponse;
+		} catch (error) {
+			// Log the actual error for debugging
+			console.error('RAG Client Error:', error);
+			throw error;
 		}
-		return (await res.json()) as RAGQueryResponse;
 	}
 }
 
