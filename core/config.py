@@ -25,6 +25,10 @@ class Config(BaseSettings):
     RAG_COLLECTION_NAME: str = "wp_codex_plugin"
     # CORS settings
     CORS_ORIGINS: str = "http://localhost:3000,http://localhost:3001"
+    # Logging settings
+    LOG_LEVEL: str = "INFO"
+    LOG_FORMAT: str = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    LOG_FILE: str = ""
 
     class Config:
         env_file = ".env"
@@ -43,6 +47,8 @@ class LocalConfig(Config):
 class ProductionConfig(Config):
     DEBUG: bool = False
     CORS_ORIGINS: str = "https://yourdomain.com,https://www.yourdomain.com"
+    LOG_LEVEL: str = "WARNING"
+    LOG_FILE: str = "app.log"
 
 
 def get_config():

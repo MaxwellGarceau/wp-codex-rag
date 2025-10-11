@@ -1,4 +1,3 @@
-import logging
 from typing import Any
 
 import chromadb
@@ -9,8 +8,9 @@ from openai import OpenAI, RateLimitError, APIError
 from app.rag.application.dto import RAGQueryResponseDTO, RAGSourceDTO
 from app.rag.domain.usecase.rag import RAGUseCase
 from core.config import config
+from core.logging_config import get_logger
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 class RAGService(RAGUseCase):

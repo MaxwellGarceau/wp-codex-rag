@@ -4,6 +4,7 @@ import click
 import uvicorn
 
 from core.config import config
+from core.logging_config import setup_logging
 
 
 @click.command()
@@ -21,6 +22,10 @@ from core.config import config
 def main(env: str, debug: bool):
     os.environ["ENV"] = env
     os.environ["DEBUG"] = str(debug)
+    
+    # Initialize logging configuration
+    setup_logging()
+    
     uvicorn.run(
         app="app.server:app",
         host=config.APP_HOST,
