@@ -1,13 +1,35 @@
 import { ErrorProperties } from "../services/ragClient";
 
 interface ErrorDisplayProps {
-  error: string;
+  error: string; // JSON string of ErrorProperties
   onDismiss?: () => void;
 }
 
 // NOTE: Frontend relies on the BE contract for the error response
 export function ErrorDisplay({ error, onDismiss }: ErrorDisplayProps) {
-  const { statusCode, type, message, providerCode } = JSON.parse(error) as ErrorProperties;
+  const parseError = (error: string): ErrorProperties => {
+    try {
+      const parsed = JSON.parse(error) as ErrorProperties;
+      
+      // Ensure required properties exist with fallbacks
+      return {
+        message: parsed.message || "Unknown error",
+        statusCode: parsed.statusCode || "Not provided",
+        type: parsed.type || "unknown",
+        providerCode: parsed.providerCode || "Not provided"
+      };
+    } catch {
+      // Fallback for non-JSON errors
+      return {
+        message: error,
+        statusCode: "Not provided",
+        type: "Not provided",
+        providerCode: "Not provided"
+      };
+    }
+  };
+
+  const { statusCode, type, message, providerCode } = parseError(error);
 
   return (
     <div className="rounded-md border border-red-200 bg-red-50 p-4">

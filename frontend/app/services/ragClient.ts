@@ -4,7 +4,7 @@ export type RAGQueryResponse = { answer: string; sources: RAGSource[] };
 // Error properties structure - matches backend ErrorDetail contract
 export type ErrorProperties = {
   message: string;
-  statusCode: number;
+  statusCode: number | string;
   type: string;
   providerCode: string;
 };
