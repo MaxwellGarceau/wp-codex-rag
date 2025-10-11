@@ -9,6 +9,7 @@ from app.container import Container
 from app.user.adapter.input.api import router as user_router
 from app.rag.adapter.input.api import router as rag_router
 from core.config import config
+from core.dto.error_response import ErrorResponse
 from core.exceptions import CustomException
 from core.fastapi.dependencies import Logging
 from core.fastapi.middlewares import (
@@ -42,16 +43,32 @@ def init_listeners(app_: FastAPI) -> None:
     # OpenAI API error handlers
     @app_.exception_handler(RateLimitError)
     async def rate_limit_handler(request: Request, exc: RateLimitError):
+        error_response = ErrorResponse(
+            error={
+                "message": str(exc),
+                "type": "rate_limit",
+                "param": None,
+                "code": "rate_limit"
+            }
+        )
         return JSONResponse(
             status_code=429,
-            content={"error": {"message": str(exc), "type": "rate_limit", "code": "rate_limit"}},
+            content=error_response.model_dump(),
         )
     
     @app_.exception_handler(APIError)
     async def api_error_handler(request: Request, exc: APIError):
+        error_response = ErrorResponse(
+            error={
+                "message": str(exc),
+                "type": "api_error",
+                "param": None,
+                "code": "api_error"
+            }
+        )
         return JSONResponse(
             status_code=500,
-            content={"error": {"message": str(exc), "type": "api_error", "code": "api_error"}},
+            content=error_response.model_dump(),
         )
 
 
