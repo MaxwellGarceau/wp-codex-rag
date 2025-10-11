@@ -26,12 +26,6 @@ def main(env: str, debug: bool):
     # Initialize logging configuration
     setup_logging()
     
-    # Test logging configuration
-    import logging
-    test_logger = logging.getLogger("main")
-    test_logger.info("FastAPI server starting...")
-    test_logger.debug("Debug mode enabled" if debug else "Debug mode disabled")
-    
     uvicorn.run(
         app="app.server:app",
         host=config.APP_HOST,
