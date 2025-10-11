@@ -24,6 +24,10 @@ class Config(BaseSettings):
     CHROMA_PERSIST_DIRECTORY: str = ".chroma"
     RAG_COLLECTION_NAME: str = "wp_codex_plugin"
 
+    class Config:
+        env_file = ".env"
+        env_file_encoding = "utf-8"
+
 
 class TestConfig(Config):
     WRITER_DB_URL: str = "mysql+aiomysql://fastapi:fastapi@localhost:3306/fastapi_test"
