@@ -1,6 +1,7 @@
 export type RAGSource = { title: string; url: string };
 export type RAGQueryResponse = { answer: string; sources: RAGSource[] };
 
+// This type must match the backend ErrorResponse contract exactly
 export type ErrorResponse = {
   error: {
     message: string;
