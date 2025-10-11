@@ -2,17 +2,15 @@ from fastapi import Depends, FastAPI, Request
 from fastapi.middleware import Middleware
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-from openai import RateLimitError, APIError
 
 from app.auth.adapter.input.api import router as auth_router
 from app.container import Container
 from app.user.adapter.input.api import router as user_router
 from app.rag.adapter.input.api import router as rag_router
 from core.config import config
-from core.dto.error_response import ErrorResponse
 from core.exceptions import CustomException
-from core.helpers.error_responses import create_error_response_from_exception
 from core.fastapi.dependencies import Logging
+from core.fastapi.exception_handlers import register_exception_handlers
 from core.fastapi.middlewares import (
     AuthBackend,
     AuthenticationMiddleware,
@@ -33,39 +31,8 @@ def init_routers(app_: FastAPI) -> None:
 
 
 def init_listeners(app_: FastAPI) -> None:
-    # Exception handler
-    @app_.exception_handler(CustomException)
-    async def custom_exception_handler(request: Request, exc: CustomException):
-        return JSONResponse(
-            status_code=exc.code,
-            content={"error_code": exc.error_code, "message": exc.message},
-        )
-    
-    # OpenAI API error handlers
-    @app_.exception_handler(RateLimitError)
-    async def rate_limit_handler(request: Request, exc: RateLimitError):
-        return create_error_response_from_exception(
-            status_code=429,
-            exception=exc,
-            error_type="rate_limit"
-        )
-    
-    @app_.exception_handler(APIError)
-    async def api_error_handler(request: Request, exc: APIError):
-        return create_error_response_from_exception(
-            status_code=500,
-            exception=exc,
-            error_type="api_error"
-        )
-    
-    # General exception handler for any unhandled exceptions
-    @app_.exception_handler(Exception)
-    async def general_exception_handler(request: Request, exc: Exception):
-        return create_error_response_from_exception(
-            status_code=500,
-            exception=exc,
-            error_type="internal_error"
-        )
+    """Initialize exception handlers and other app listeners."""
+    register_exception_handlers(app_)
 
 
 def on_auth_error(request: Request, exc: Exception):
