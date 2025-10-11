@@ -18,3 +18,8 @@ async def query_rag(
     result = await usecase.query(question=request.question)
     return result
 
+
+@rag_router.get("/health")
+async def health_check():
+    """Simple health check endpoint for testing CORS without OpenAI dependency."""
+    return {"status": "healthy", "message": "RAG service is running"}
