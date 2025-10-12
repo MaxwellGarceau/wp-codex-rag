@@ -145,16 +145,9 @@ class HuggingFaceClient(LLMClientInterface):
             
             # Remove the original prompt from the response
             answer = response[len(full_prompt):].strip()
-            
-            # Check if we hit the token limit
-            # If the last token is not an EOS token, we likely hit the limit
-            last_token = outputs[0][-1].item()
-            hit_token_limit = (last_token != self.tokenizer.eos_token_id)
-            
-            if hit_token_limit:
-                # Add a note that the response was truncated
-                answer += "\n\n[Response truncated due to length limit]"
-                logger.warning(f"Response hit token limit of {max_tokens}")
+
+            # Check if we hit the token limit and add truncation message if needed
+            answer = self._handle_token_limit_truncation(answer, outputs, max_tokens)
             
             logger.debug(f"Generated completion with {len(answer)} characters")
             return answer
@@ -162,3 +155,28 @@ class HuggingFaceClient(LLMClientInterface):
         except Exception as e:
             logger.error(f"HuggingFace completion generation failed: {str(e)}")
             raise e
+    
+    def _handle_token_limit_truncation(self, answer: str, outputs, max_tokens: int) -> str:
+        """
+        Check if the response hit the token limit and add truncation message if needed.
+        Every model handles token limit truncation differently. Some add it to the response, others don't.
+        
+        Args:
+            answer: The generated answer text
+            outputs: The model's output tokens
+            max_tokens: The maximum token limit that was set
+            
+        Returns:
+            The answer with truncation message added if needed
+        """
+        # Check if we hit the token limit
+        # If the last token is not an EOS token, we likely hit the limit
+        last_token = outputs[0][-1].item()
+        hit_token_limit = (last_token != self.tokenizer.eos_token_id)
+        
+        if hit_token_limit:
+            # Add a note that the response was truncated
+            answer += "\n\n[Response truncated due to length limit]"
+            logger.warning(f"Response hit token limit of {max_tokens}")
+        
+        return answer

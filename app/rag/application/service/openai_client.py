@@ -90,12 +90,8 @@ class OpenAIClient(LLMClientInterface):
             completion = self.client.chat.completions.create(**completion_params)
             answer = completion.choices[0].message.content or ""
             
-            # Check if we hit the token limit
-            # OpenAI returns finish_reason that indicates if it was truncated
-            finish_reason = completion.choices[0].finish_reason
-            if finish_reason == "length":
-                answer += "\n\n[Response truncated due to length limit]"
-                logger.warning(f"Response hit token limit of {max_tokens}")
+            # Check if we hit the token limit and add truncation message if needed
+            answer = self._handle_token_limit_truncation(answer, completion, max_tokens)
             
             logger.debug(f"Generated completion with {len(answer)} characters")
             return answer
@@ -106,3 +102,24 @@ class OpenAIClient(LLMClientInterface):
         except APIError as e:
             logger.error(f"OpenAI API error during completion generation: {str(e)}")
             raise e
+    
+    def _handle_token_limit_truncation(self, answer: str, completion, max_tokens: int) -> str:
+        """
+        Check if the response hit the token limit and add truncation message if needed.
+        
+        Args:
+            answer: The generated answer text
+            completion: The OpenAI completion response object
+            max_tokens: The maximum token limit that was set
+            
+        Returns:
+            The answer with truncation message added if needed
+        """
+        # Check if we hit the token limit
+        # OpenAI returns finish_reason that indicates if it was truncated
+        finish_reason = completion.choices[0].finish_reason
+        if finish_reason == "length":
+            answer += "\n\n[Response truncated due to length limit]"
+            logger.warning(f"Response hit token limit of {max_tokens}")
+        
+        return answer
