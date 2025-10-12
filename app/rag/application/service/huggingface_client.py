@@ -86,7 +86,8 @@ class HuggingFaceClient(LLMClientInterface):
         self, 
         system_prompt: str, 
         user_prompt: str, 
-        temperature: float = 0.2
+        temperature: float = 0.2,
+        max_tokens: int = 500
     ) -> str:
         """
         Generate a completion using HuggingFace's causal language model.
@@ -95,6 +96,7 @@ class HuggingFaceClient(LLMClientInterface):
             system_prompt: The system prompt to set the context
             user_prompt: The user prompt with the question and context
             temperature: The temperature for response generation (default: 0.2)
+            max_tokens: Maximum number of new tokens to generate (default: 500, set to None for no limit)
             
         Returns:
             The generated completion text
@@ -123,15 +125,20 @@ class HuggingFaceClient(LLMClientInterface):
             
             # Generate response
             with torch.no_grad():
-                outputs = self.completion_model.generate(
-                    inputs,
-                    max_new_tokens=500,  # Generate up to 500 new tokens for longer responses
-                    temperature=temperature,
-                    do_sample=True,
-                    pad_token_id=self.tokenizer.eos_token_id,
-                    eos_token_id=self.tokenizer.eos_token_id,
-                    repetition_penalty=1.1
-                )
+                # Prepare generation parameters
+                generation_params = {
+                    "temperature": temperature,
+                    "do_sample": True,
+                    "pad_token_id": self.tokenizer.eos_token_id,
+                    "eos_token_id": self.tokenizer.eos_token_id,
+                    "repetition_penalty": 1.1
+                }
+                
+                # Add max_new_tokens only if specified
+                if max_tokens is not None:
+                    generation_params["max_new_tokens"] = max_tokens
+                
+                outputs = self.completion_model.generate(inputs, **generation_params)
             
             # Decode the response
             response = self.tokenizer.decode(outputs[0], skip_special_tokens=True)

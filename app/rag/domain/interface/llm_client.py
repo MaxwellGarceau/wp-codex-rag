@@ -26,7 +26,8 @@ class LLMClientInterface(ABC):
         self, 
         system_prompt: str, 
         user_prompt: str, 
-        temperature: float = 0.2
+        temperature: float = 0.2,
+        max_tokens: int = None
     ) -> str:
         """
         Generate a completion using the LLM.
@@ -35,6 +36,7 @@ class LLMClientInterface(ABC):
             system_prompt: The system prompt to set the context
             user_prompt: The user prompt with the question and context
             temperature: The temperature for response generation
+            max_tokens: Maximum number of new tokens to generate (optional)
             
         Returns:
             The generated completion text

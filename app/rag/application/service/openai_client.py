@@ -51,7 +51,8 @@ class OpenAIClient(LLMClientInterface):
         self, 
         system_prompt: str, 
         user_prompt: str, 
-        temperature: float = 0.2
+        temperature: float = 0.2,
+        max_tokens: int = None
     ) -> str:
         """
         Generate a completion using OpenAI's chat completion API.
@@ -60,6 +61,7 @@ class OpenAIClient(LLMClientInterface):
             system_prompt: The system prompt to set the context
             user_prompt: The user prompt with the question and context
             temperature: The temperature for response generation (default: 0.2)
+            max_tokens: Maximum number of new tokens to generate (optional)
             
         Returns:
             The generated completion text
@@ -71,14 +73,21 @@ class OpenAIClient(LLMClientInterface):
         logger.debug("Generating completion using OpenAI")
         
         try:
-            completion = self.client.chat.completions.create(
-                model=config.OPENAI_MODEL,
-                messages=[
+            # Prepare completion parameters
+            completion_params = {
+                "model": config.OPENAI_MODEL,
+                "messages": [
                     {"role": "system", "content": system_prompt},
                     {"role": "user", "content": user_prompt},
                 ],
-                temperature=temperature,
-            )
+                "temperature": temperature,
+            }
+            
+            # Add max_tokens only if specified
+            if max_tokens is not None:
+                completion_params["max_tokens"] = max_tokens
+            
+            completion = self.client.chat.completions.create(**completion_params)
             answer = completion.choices[0].message.content or ""
             logger.debug(f"Generated completion with {len(answer)} characters")
             return answer

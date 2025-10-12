@@ -68,8 +68,9 @@ class LLMServiceFactory:
         system_prompt: str, 
         user_prompt: str, 
         temperature: float = 0.2,
+        max_tokens: int = None,
         **kwargs
     ) -> str:
         """Handle completion generation."""
-        return client.generate_completion(system_prompt, user_prompt, temperature)
+        return client.generate_completion(system_prompt, user_prompt, temperature, max_tokens)
     
