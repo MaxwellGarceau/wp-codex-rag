@@ -4,16 +4,20 @@ import httpx
 from sentence_transformers import SentenceTransformer
 
 from app.rag.application.dto import ProcessedDocument, WordPressAPIResponse
+from app.rag.domain.interface.ingest_documentation_client import (
+    IngestDocumentationClient,
+)
 from core.logging_config import get_logger
 
 logger = get_logger(__name__)
 
 
-class WPCodexClient:
+class WPCodexClient(IngestDocumentationClient):
     """
     WordPress Codex client for fetching, processing, and embedding documentation.
 
-    This client is specifically designed for WordPress Codex operations:
+    This client implements the IngestDocumentationClient interface and is specifically
+    designed for WordPress Codex operations:
     - Fetching documentation from WordPress.org APIs (plugin-handbook, theme-handbook, etc.)
     - Chunking content for optimal embedding
     - Generating embeddings using local SentenceTransformer models
