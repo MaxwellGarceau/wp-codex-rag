@@ -1,3 +1,5 @@
+import { HttpClient } from "./httpClient";
+
 export type RAGSource = { title: string; url: string };
 export type RAGQueryResponse = { answer: string; sources: RAGSource[] };
 
@@ -15,43 +17,15 @@ export type ErrorResponse = {
 };
 
 export class RAGClient {
-	private readonly baseUrl: string;
+	private readonly httpClient: HttpClient;
 
 	constructor(baseUrl?: string) {
-		this.baseUrl = baseUrl || process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000";
+		this.httpClient = new HttpClient(baseUrl);
 	}
 
 	async query(question: string): Promise<RAGQueryResponse> {
 		try {
-			const res = await fetch(`${this.baseUrl}/api/v1/rag/query`, {
-				method: "POST",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({ question }),
-			});
-			
-			if (!res.ok) {
-				const errorText = await res.text();
-				let errorMessage = `HTTP ${res.status}: ${res.statusText}`;
-
-				try {
-					const errorData = JSON.parse(errorText) as ErrorResponse;
-					if (errorData.error) {
-						// Pass the full structured error response
-						errorMessage = JSON.stringify(errorData.error);
-					}
-				} catch {
-					// If JSON parsing fails, use the raw text or default message
-					errorMessage = JSON.stringify({
-						message: errorText || errorMessage,
-						statusCode: 0,
-						type: "Not provided",
-						providerCode: "Not provided"
-					});
-				}
-
-				throw new Error(errorMessage);
-			}
-			return (await res.json()) as RAGQueryResponse;
+			return await this.httpClient.post<RAGQueryResponse>("/api/v1/rag/query", { question });
 		} catch (error) {
 			// Log the actual error for debugging
 			console.error('RAG Client Error:', error);

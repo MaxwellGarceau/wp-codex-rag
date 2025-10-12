@@ -27,7 +27,7 @@ class Config(BaseSettings):
     CORS_ORIGINS: str = "http://localhost:3000,http://localhost:3001"
     # Logging settings
     LOG_LEVEL: str = "INFO"
-    LOG_FORMAT: str = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    LOG_FORMAT: str = "%(levelname)s: (%(asctime)s) (%(name)s) %(message)s"
     LOG_FILE: str = ""
 
     class Config:
