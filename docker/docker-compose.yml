@@ -25,7 +25,7 @@ services:
       - "6379:6379"
 
   chromadb:
-    image: chromadb/chroma:latest
+    image: chromadb/chroma:0.5.23
     container_name: fastapi-chromadb
     restart: always
     ports:
