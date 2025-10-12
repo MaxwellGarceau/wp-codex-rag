@@ -3,9 +3,11 @@ from typing import Any
 import chromadb
 from chromadb.config import Settings
 from dependency_injector.wiring import Provide, inject
-from openai import OpenAI, RateLimitError, APIError
 
 from app.rag.application.dto import RAGQueryResponseDTO, RAGSourceDTO
+from app.rag.application.service.llm_service_factory import LLMServiceFactory
+from app.rag.domain.enum.llm_operation import LLMOperation
+from app.rag.domain.enum.llm_provider import LLMProvider
 from app.rag.domain.usecase.rag import RAGUseCase
 from core.config import config
 from core.logging_config import get_logger
@@ -14,14 +16,14 @@ logger = get_logger(__name__)
 
 
 class RAGService(RAGUseCase):
-    def __init__(self) -> None:
+    def __init__(self, llm_service_factory: LLMServiceFactory) -> None:
         self.client = chromadb.Client(
             Settings(persist_directory=config.CHROMA_PERSIST_DIRECTORY)
         )
         self.collection = self.client.get_or_create_collection(
             name=config.RAG_COLLECTION_NAME
         )
-        self.llm = OpenAI(api_key=config.OPENAI_API_KEY)
+        self.llm_factory = llm_service_factory
 
     async def query(self, *, question: str) -> dict[str, Any]:
         logger.info(f"Starting RAG query for question: {question[:100]}...")
@@ -29,11 +31,11 @@ class RAGService(RAGUseCase):
         try:
             # Generate embeddings
             logger.debug("Generating embeddings for question")
-            embeds = self.llm.embeddings.create(
-                input=[question], model=config.OPENAI_EMBEDDING_MODEL
+            query_embedding = self.llm_factory.execute_operation(
+                operation=LLMOperation.EMBEDDING,
+                provider=LLMProvider.OPENAI,
+                text=question
             )
-            query_embedding = embeds.data[0].embedding
-            logger.debug(f"Generated embedding with {len(query_embedding)} dimensions")
 
             # Query vector database
             logger.debug("Querying vector database for similar documents")
@@ -65,29 +67,19 @@ class RAGService(RAGUseCase):
             context_block = "\n\n".join(contexts)
             user_prompt = f"Question: {question}\n\nContext:\n{context_block}"
 
-            completion = self.llm.chat.completions.create(
-                model=config.OPENAI_MODEL,
-                messages=[
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": user_prompt},
-                ],
-                temperature=0.2,
+            answer = self.llm_factory.execute_operation(
+                operation=LLMOperation.COMPLETION,
+                provider=LLMProvider.OPENAI,
+                system_prompt=system_prompt,
+                user_prompt=user_prompt,
+                temperature=0.2
             )
-            answer = completion.choices[0].message.content or ""
             logger.info(f"Generated answer with {len(answer)} characters")
 
             response = RAGQueryResponseDTO(answer=answer, sources=sources)
             logger.info("RAG query completed successfully")
             return response.model_dump()
             
-        except RateLimitError as e:
-            logger.error(f"OpenAI rate limit exceeded: {str(e)}")
-            # Re-raise the OpenAI error so it gets passed through to the frontend
-            raise e
-        except APIError as e:
-            logger.error(f"OpenAI API error: {str(e)}")
-            # Re-raise the OpenAI error so it gets passed through to the frontend
-            raise e
         except Exception as e:
             logger.error(f"Unexpected error in RAG query: {str(e)}", exc_info=True)
             # Re-raise the original exception to preserve all its properties
