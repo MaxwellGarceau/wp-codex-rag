@@ -13,4 +13,3 @@ class RAGSourceDTO(BaseModel):
 class RAGQueryResponseDTO(BaseModel):
     answer: str = Field(..., description="Generated answer")
     sources: list[RAGSourceDTO] = Field(default_factory=list, description="Citations")
-

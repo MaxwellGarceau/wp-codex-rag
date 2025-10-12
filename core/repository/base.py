@@ -1,6 +1,6 @@
-from typing import TypeVar, Type, Generic
+from typing import Generic, TypeVar
 
-from sqlalchemy import select, update, delete
+from sqlalchemy import delete, select, update
 
 from core.db.session import Base, session
 from core.repository.enum import SynchronizeSessionEnum
@@ -9,7 +9,7 @@ ModelType = TypeVar("ModelType", bound=Base)
 
 
 class BaseRepo(Generic[ModelType]):
-    def __init__(self, model: Type[ModelType]):
+    def __init__(self, model: type[ModelType]):
         self.model = model
 
     async def get_by_id(self, id: int) -> ModelType | None:

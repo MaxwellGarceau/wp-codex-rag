@@ -4,7 +4,7 @@ import jwt
 import pytest
 
 from core.config import config
-from core.helpers.token import TokenHelper, DecodeTokenException, ExpiredTokenException
+from core.helpers.token import DecodeTokenException, ExpiredTokenException, TokenHelper
 from tests.support.token import EXPIRED_TOKEN
 
 

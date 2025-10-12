@@ -26,20 +26,22 @@ class RAGService(RAGUseCase):
 
     async def query(self, *, question: str) -> dict[str, Any]:
         logger.info(f"Starting RAG query for question: {question[:100]}...")
-        
+
         try:
             # Generate embeddings
             logger.debug("Generating embeddings for question")
             query_embedding = self.llm_factory.execute_operation(
                 operation=LLMOperation.EMBEDDING,
                 provider=LLMProvider.HUGGINGFACE,
-                text=question
+                text=question,
             )
 
             # Query vector database
             logger.debug("Querying vector database for similar documents")
             results = self.collection.query(
-                query_embeddings=[query_embedding], n_results=5, include=["metadatas", "documents", "distances"]
+                query_embeddings=[query_embedding],
+                n_results=5,
+                include=["metadatas", "documents", "distances"],
             )
 
             # Process results
@@ -47,7 +49,7 @@ class RAGService(RAGUseCase):
             sources: list[RAGSourceDTO] = []
             num_docs = len(results.get("documents", [[]])[0])
             logger.info(f"Found {num_docs} relevant documents")
-            
+
             for i in range(num_docs):
                 doc = results["documents"][0][i]
                 meta = results["metadatas"][0][i]
@@ -74,16 +76,15 @@ class RAGService(RAGUseCase):
                 system_prompt=system_prompt,
                 user_prompt=user_prompt,
                 temperature=0.2,
-                max_tokens=1000  # Good balance for WordPress documentation
+                max_tokens=1000,  # Good balance for WordPress documentation
             )
             logger.info(f"Generated answer with {len(answer)} characters")
 
             response = RAGQueryResponseDTO(answer=answer, sources=sources)
             logger.info("RAG query completed successfully")
             return response.model_dump()
-            
+
         except Exception as e:
-            logger.error(f"Unexpected error in RAG query: {str(e)}", exc_info=True)
+            logger.error(f"Unexpected error in RAG query: {e!s}", exc_info=True)
             # Re-raise the original exception to preserve all its properties
             raise e
-

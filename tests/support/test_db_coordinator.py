@@ -1,6 +1,6 @@
 from alembic import command
 from alembic.config import Config as AlembicConfig
-from sqlalchemy import create_engine, inspect, Engine, text
+from sqlalchemy import Engine, create_engine, inspect, text
 
 from core.config import config
 

@@ -1,24 +1,22 @@
 from dependency_injector.wiring import Provide, inject
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 
 from app.container import Container
 from app.rag.application.dto import RAGQueryRequestDTO, RAGQueryResponseDTO
 from app.rag.domain.usecase.rag import RAGUseCase
 from core.dto.error_response import ErrorResponse
-from core.helpers.error_responses import create_http_exception
-
 
 rag_router = APIRouter()
 
 
 @rag_router.post(
-    "/query", 
+    "/query",
     response_model=RAGQueryResponseDTO,
     responses={
         400: {"model": ErrorResponse, "description": "Bad Request"},
         429: {"model": ErrorResponse, "description": "Rate Limit Exceeded"},
         500: {"model": ErrorResponse, "description": "Internal Server Error"},
-    }
+    },
 )
 @inject
 async def query_rag(

@@ -5,8 +5,10 @@ import pytest
 import pytest_asyncio
 
 from core.db.session import (
-    set_session_context,
     reset_session_context,
+    set_session_context,
+)
+from core.db.session import (
     session as db_session,
 )
 from tests.support.test_db_coordinator import TestDbCoordinator
