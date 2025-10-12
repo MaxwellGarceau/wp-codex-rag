@@ -5,7 +5,6 @@ This module defines the expected structure for WordPress API responses
 and processed documents used by the WPCodexClient.
 """
 
-from typing import Optional
 
 from pydantic import BaseModel, Field
 
@@ -22,13 +21,13 @@ class WordPressAPIResponse(BaseModel):
     link: str = Field(description="URL to the post/page")
     title: dict[str, str] = Field(description="Title object with rendered content")
     content: dict[str, str] = Field(description="Content object with rendered HTML")
-    excerpt: Optional[dict[str, str]] = Field(
+    excerpt: dict[str, str] | None = Field(
         default=None, description="Excerpt object with rendered content"
     )
-    date: Optional[str] = Field(default=None, description="Publication date")
-    modified: Optional[str] = Field(default=None, description="Last modification date")
-    slug: Optional[str] = Field(default=None, description="URL slug")
-    status: Optional[str] = Field(default=None, description="Publication status")
+    date: str | None = Field(default=None, description="Publication date")
+    modified: str | None = Field(default=None, description="Last modification date")
+    slug: str | None = Field(default=None, description="URL slug")
+    status: str | None = Field(default=None, description="Publication status")
 
 
 class ProcessedDocument(BaseModel):

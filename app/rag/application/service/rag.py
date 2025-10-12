@@ -1,7 +1,6 @@
 from typing import Any
 
 import chromadb
-from chromadb.config import Settings
 
 from app.rag.application.dto import RAGQueryResponseDTO, RAGSourceDTO
 from app.rag.application.service.llm_service_factory import LLMServiceFactory
@@ -16,8 +15,11 @@ logger = get_logger(__name__)
 
 class RAGService(RAGUseCase):
     def __init__(self, llm_service_factory: LLMServiceFactory) -> None:
-        self.client = chromadb.Client(
-            Settings(persist_directory=config.CHROMA_PERSIST_DIRECTORY)
+        # Connect to ChromaDB server running in Docker
+        self.client = chromadb.HttpClient(
+            host=config.CHROMA_SERVER_HOST,
+            port=config.CHROMA_SERVER_PORT,
+            settings=chromadb.Settings(allow_reset=True),
         )
         self.collection = self.client.get_or_create_collection(
             name=config.RAG_COLLECTION_NAME
@@ -87,4 +89,4 @@ class RAGService(RAGUseCase):
         except Exception as e:
             logger.error(f"Unexpected error in RAG query: {e!s}", exc_info=True)
             # Re-raise the original exception to preserve all its properties
-            raise e
+            raise

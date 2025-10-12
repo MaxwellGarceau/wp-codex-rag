@@ -41,17 +41,17 @@ class OpenAIClient(LLMClientInterface):
             logger.error(
                 f"OpenAI rate limit exceeded during embedding generation: {e!s}"
             )
-            raise e
+            raise
         except APIError as e:
             logger.error(f"OpenAI API error during embedding generation: {e!s}")
-            raise e
+            raise
 
     def generate_completion(
         self,
         system_prompt: str,
         user_prompt: str,
         temperature: float = 0.2,
-        max_tokens: int = None,
+        max_tokens: int | None = None,
     ) -> str:
         """
         Generate a completion using OpenAI's chat completion API.
@@ -99,10 +99,10 @@ class OpenAIClient(LLMClientInterface):
             logger.error(
                 f"OpenAI rate limit exceeded during completion generation: {e!s}"
             )
-            raise e
+            raise
         except APIError as e:
             logger.error(f"OpenAI API error during completion generation: {e!s}")
-            raise e
+            raise
 
     def _handle_token_limit_truncation(
         self, answer: str, completion, max_tokens: int

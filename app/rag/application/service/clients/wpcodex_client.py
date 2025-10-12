@@ -147,19 +147,19 @@ class WPCodexClient(IngestDocumentationClient):
                         f"HTTP status error fetching page {page}: {e.response.status_code} - {e}"
                     )
                     # Re-raise to let the caller handle the error appropriately
-                    raise e
+                    raise
                 except httpx.RequestError as e:
                     logger.error(f"Request error fetching page {page}: {e}")
                     # Network/connection issues - might be retryable
-                    raise e
+                    raise
                 except httpx.HTTPError as e:
                     logger.error(f"HTTP error fetching page {page}: {e}")
                     # Other HTTP errors
-                    raise e
+                    raise
                 except Exception as e:
                     logger.error(f"Unexpected error fetching page {page}: {e}")
                     # Unexpected errors - re-raise to preserve stack trace
-                    raise e
+                    raise
 
         logger.info(f"Successfully fetched {len(docs)} documentation entries")
         return docs
@@ -288,7 +288,7 @@ class WPCodexClient(IngestDocumentationClient):
 
         except Exception as e:
             logger.error(f"Error generating batch embeddings: {e}")
-            raise e
+            raise
 
     async def process_documentation(self, section: str = "plugin") -> dict[str, Any]:
         """

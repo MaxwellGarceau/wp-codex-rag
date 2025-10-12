@@ -15,8 +15,8 @@ class SQLAlchemyMiddleware:
 
         try:
             await self.app(scope, receive, send)
-        except Exception as e:
-            raise e
+        except Exception:
+            raise
         finally:
             await session.remove()
             reset_session_context(context=context)

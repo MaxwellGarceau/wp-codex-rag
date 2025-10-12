@@ -26,10 +26,10 @@ async def query_rag(
     try:
         result = await usecase.query(question=request.question)
         return result
-    except Exception as e:
+    except Exception:
         # This will be handled by the global exception handlers
         # but we can also add specific error handling here if needed
-        raise e
+        raise
 
 
 @rag_router.get("/health")

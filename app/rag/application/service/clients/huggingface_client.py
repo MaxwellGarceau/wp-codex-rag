@@ -76,7 +76,7 @@ class HuggingFaceClient(LLMClientInterface):
 
         except Exception as e:
             logger.error(f"HuggingFace embedding generation failed: {e!s}")
-            raise e
+            raise
 
     def generate_completion(
         self,
@@ -154,7 +154,7 @@ class HuggingFaceClient(LLMClientInterface):
 
         except Exception as e:
             logger.error(f"HuggingFace completion generation failed: {e!s}")
-            raise e
+            raise
 
     def _handle_token_limit_truncation(
         self, answer: str, outputs, max_tokens: int

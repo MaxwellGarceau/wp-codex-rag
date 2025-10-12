@@ -26,7 +26,7 @@ class LLMClientInterface(ABC):
         system_prompt: str,
         user_prompt: str,
         temperature: float = 0.2,
-        max_tokens: int = None,
+        max_tokens: int | None = None,
     ) -> str:
         """
         Generate a completion using the LLM.

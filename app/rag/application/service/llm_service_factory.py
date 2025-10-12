@@ -74,7 +74,7 @@ class LLMServiceFactory:
         system_prompt: str,
         user_prompt: str,
         temperature: float = 0.2,
-        max_tokens: int = None,
+        max_tokens: int | None = None,
         **kwargs,
     ) -> str:
         """Handle completion generation."""
