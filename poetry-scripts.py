@@ -54,20 +54,9 @@ def seed():
 
 def check_chroma():
     """Check ChromaDB data and collections"""
-    # Poetry strips the first argument, so we need to reconstruct it
-    import sys
-    
-    # Get all arguments after the command name
-    args = sys.argv[1:] if len(sys.argv) > 1 else []
-    
-    # If the first arg is not --action, assume it's the action value
-    if args and not args[0].startswith('--'):
-        # Insert --action before the first argument
-        args = ['--action'] + args
-    
-    # Run the script with reconstructed arguments
-    cmd = [sys.executable, "scripts/check_chroma_db.py"] + args
-    subprocess.run(cmd, check=False)
+    # Pass all arguments after 'check-chroma' to the script
+    args = sys.argv[2:] if len(sys.argv) > 2 else []
+    subprocess.run([sys.executable, "scripts/check_chroma_db.py"] + args, check=False)
 
 
 def docker_up():
