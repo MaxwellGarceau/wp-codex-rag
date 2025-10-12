@@ -2,7 +2,6 @@ from typing import Any
 
 import chromadb
 from chromadb.config import Settings
-from dependency_injector.wiring import Provide, inject
 
 from app.rag.application.dto import RAGQueryResponseDTO, RAGSourceDTO
 from app.rag.application.service.llm_service_factory import LLMServiceFactory
