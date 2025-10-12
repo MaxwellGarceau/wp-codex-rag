@@ -1,3 +1,5 @@
+from typing import ClassVar
+
 from pydantic import BaseModel, Field
 
 
@@ -13,8 +15,8 @@ class ErrorDetail(BaseModel):
 
     # Allow additional properties from original errors
     class Config:
-        extra = "allow"
-        json_schema_extra = {
+        extra: ClassVar[str] = "allow"
+        json_schema_extra: ClassVar[dict] = {
             "example": {
                 "message": "You exceeded your current quota, please check your plan and billing details.",
                 "statusCode": 429,
@@ -30,7 +32,7 @@ class ErrorResponse(BaseModel):
     error: ErrorDetail = Field(..., description="Error details")
 
     class Config:
-        json_schema_extra = {
+        json_schema_extra: ClassVar[dict] = {
             "example": {
                 "error": {
                     "message": "You exceeded your current quota, please check your plan and billing details.",

@@ -23,13 +23,8 @@ async def query_rag(
     request: RAGQueryRequestDTO,
     usecase: RAGUseCase = Depends(Provide[Container.rag_service]),
 ):
-    try:
-        result = await usecase.query(question=request.question)
-        return result
-    except Exception:
-        # This will be handled by the global exception handlers
-        # but we can also add specific error handling here if needed
-        raise
+    result = await usecase.query(question=request.question)
+    return result
 
 
 @rag_router.get("/health")

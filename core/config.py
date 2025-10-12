@@ -53,7 +53,7 @@ class ProductionConfig(Config):
     LOG_FILE: str = "app.log"
 
 
-def get_config():
+def get_config() -> Config:
     env = os.getenv("ENV", "local")
     config_type = {
         "test": TestConfig(),

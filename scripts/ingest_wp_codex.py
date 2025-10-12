@@ -8,8 +8,11 @@ import requests
 # Add the project root to the Python path
 sys.path.insert(0, str(Path(__file__).parent.parent.resolve()))
 
-from app.rag.application.service.clients.wpcodex_client import WPCodexClient
-from core.config import config
+# Import after path modification
+from app.rag.application.service.clients.wpcodex_client import (
+    WPCodexClient,
+)  # noqa: E402
+from core.config import config  # noqa: E402
 
 
 class ChromaDBRESTClient:
