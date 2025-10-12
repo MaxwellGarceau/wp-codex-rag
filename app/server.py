@@ -11,6 +11,7 @@ from core.config import config
 from core.exceptions import CustomException
 from core.fastapi.dependencies import Logging
 from core.exceptions.handlers import register_exception_handlers
+from core.logging_config import setup_logging
 from core.fastapi.middlewares import (
     AuthBackend,
     AuthenticationMiddleware,
@@ -76,6 +77,9 @@ def init_cache() -> None:
 
 
 def create_app() -> FastAPI:
+    # Initialize logging configuration
+    setup_logging()
+    
     app_ = FastAPI(
         title="Hide",
         description="Hide API",
