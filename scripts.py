@@ -48,7 +48,7 @@ def test_cov():
 
 
 def seed():
-    """Seed the database"""
+    """Seed the vector database with WordPress Codex documentation"""
     subprocess.run([sys.executable, "scripts/ingest_wp_codex.py"], check=False)
 
 

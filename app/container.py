@@ -3,9 +3,9 @@ from dependency_injector.providers import Callable, Factory, Singleton
 from openai import OpenAI
 
 from app.auth.application.service.jwt import JwtService
-from app.rag.application.service.huggingface_client import HuggingFaceClient
+from app.rag.application.service.clients.huggingface_client import HuggingFaceClient
+from app.rag.application.service.clients.openai_client import OpenAIClient
 from app.rag.application.service.llm_service_factory import LLMServiceFactory
-from app.rag.application.service.openai_client import OpenAIClient
 from app.rag.application.service.rag import RAGService
 from app.rag.domain.enum.llm_provider import LLMProvider
 from app.user.adapter.output.persistence.repository_adapter import UserRepositoryAdapter
