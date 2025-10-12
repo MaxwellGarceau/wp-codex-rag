@@ -11,18 +11,18 @@ sys.path.insert(0, str(Path(__file__).parent.parent.resolve()))
 # Import after path modification
 from app.rag.application.service.clients.wpcodex_client import (
     WPCodexClient,
-)  # noqa: E402
+)
 from core.config import config  # noqa: E402
 
 
 class ChromaDBClient:
     """ChromaDB client using Python client library."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.client = chromadb.HttpClient(
             host=config.CHROMA_SERVER_HOST,
             port=config.CHROMA_SERVER_PORT,
-            settings=chromadb.Settings(allow_reset=True)
+            settings=chromadb.Settings(allow_reset=True),
         )
         self.collection_name = config.RAG_COLLECTION_NAME
 
@@ -35,9 +35,9 @@ class ChromaDBClient:
         except Exception:
             # Collection doesn't exist, create it
             try:
-                collection = self.client.create_collection(
+                self.client.create_collection(
                     name=self.collection_name,
-                    metadata={"description": "WordPress Codex Plugin Documentation"}
+                    metadata={"description": "WordPress Codex Plugin Documentation"},
                 )
                 print(f"Created collection: {self.collection_name}")
             except Exception as e:
@@ -48,20 +48,39 @@ class ChromaDBClient:
                     print(f"Error creating collection: {e}")
                     raise
 
+    def clear_collection(self) -> None:
+        """Clear all documents from the collection."""
+        try:
+            collection = self.client.get_collection(self.collection_name)
+            count_before = collection.count()
+            if count_before > 0:
+                print(
+                    f"Clearing {count_before} existing documents from collection '{self.collection_name}'..."
+                )
+                # Delete all documents by getting all IDs and deleting them
+                results = collection.get()
+                if results["ids"]:
+                    collection.delete(ids=results["ids"])
+                    print(f"Successfully cleared {len(results['ids'])} documents")
+                else:
+                    print("Collection was already empty")
+            else:
+                print("Collection is already empty")
+        except Exception as e:
+            print(f"Error clearing collection: {e}")
+            raise
+
     def add_documents(
         self, ids: list, documents: list, metadatas: list, embeddings: list
     ) -> None:
         """Add documents to the collection."""
         collection = self.client.get_collection(self.collection_name)
         collection.add(
-            ids=ids,
-            documents=documents,
-            metadatas=metadatas,
-            embeddings=embeddings
+            ids=ids, documents=documents, metadatas=metadatas, embeddings=embeddings
         )
 
 
-async def ingest(section: str) -> None:
+async def ingest(section: str, clear_existing: bool = True) -> None:
     """Ingest WordPress documentation using WPCodexClient and ChromaDB client."""
 
     # Initialize ChromaDB client
@@ -69,6 +88,12 @@ async def ingest(section: str) -> None:
 
     # Create collection
     chroma_client.create_collection()
+
+    # Clear existing data to prevent duplicates (if requested)
+    if clear_existing:
+        chroma_client.clear_collection()
+    else:
+        print("Skipping collection clearing - preserving existing data")
 
     # Initialize WP Codex client
     wpcodex_client = WPCodexClient()
@@ -81,7 +106,7 @@ async def ingest(section: str) -> None:
 
     # Add documents in batches to avoid overwhelming the server
     batch_size = 100
-    total_chunks = processed_data['total_chunks']
+    total_chunks = processed_data["total_chunks"]
 
     for i in range(0, total_chunks, batch_size):
         end_idx = min(i + batch_size, total_chunks)
@@ -90,14 +115,16 @@ async def ingest(section: str) -> None:
         batch_metadatas = processed_data["metadatas"][i:end_idx]
         batch_embeddings = processed_data["embeddings"][i:end_idx]
 
-        print(f"Adding batch {i//batch_size + 1}/{(total_chunks + batch_size - 1)//batch_size} ({len(batch_ids)} chunks)...")
+        print(
+            f"Adding batch {i//batch_size + 1}/{(total_chunks + batch_size - 1)//batch_size} ({len(batch_ids)} chunks)..."
+        )
 
         try:
             chroma_client.add_documents(
                 ids=batch_ids,
                 documents=batch_documents,
                 metadatas=batch_metadatas,
-                embeddings=batch_embeddings
+                embeddings=batch_embeddings,
             )
         except Exception as e:
             print(f"Error adding batch {i//batch_size + 1}: {e}")
@@ -109,20 +136,27 @@ async def ingest(section: str) -> None:
     )
 
 
-def main():
+def main() -> None:
     """Main function to run the ingestion script."""
-    parser = argparse.ArgumentParser(description="Ingest WordPress documentation into ChromaDB")
+    parser = argparse.ArgumentParser(
+        description="Ingest WordPress documentation into ChromaDB"
+    )
     parser.add_argument(
         "--section",
         type=str,
         default="plugin",
-        help="WordPress documentation section to ingest (default: plugin)"
+        help="WordPress documentation section to ingest (default: plugin)",
     )
-    
+    parser.add_argument(
+        "--no-clear",
+        action="store_true",
+        help="Skip clearing existing data from the collection (default: clear existing data)",
+    )
+
     args = parser.parse_args()
-    
+
     try:
-        asyncio.run(ingest(args.section))
+        asyncio.run(ingest(args.section, clear_existing=not args.no_clear))
     except Exception as e:
         print(f"Error during ingestion: {e}")
         sys.exit(1)
