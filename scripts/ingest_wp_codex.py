@@ -3,7 +3,7 @@ import asyncio
 import sys
 from pathlib import Path
 
-import requests
+import chromadb
 
 # Add the project root to the Python path
 sys.path.insert(0, str(Path(__file__).parent.parent.resolve()))
@@ -15,83 +15,57 @@ from app.rag.application.service.clients.wpcodex_client import (
 from core.config import config  # noqa: E402
 
 
-class ChromaDBRESTClient:
-    """ChromaDB client using REST API."""
+class ChromaDBClient:
+    """ChromaDB client using Python client library."""
 
     def __init__(self):
-        self.base_url = (
-            f"http://{config.CHROMA_SERVER_HOST}:{config.CHROMA_SERVER_PORT}"
+        self.client = chromadb.HttpClient(
+            host=config.CHROMA_SERVER_HOST,
+            port=config.CHROMA_SERVER_PORT,
+            settings=chromadb.Settings(allow_reset=True)
         )
         self.collection_name = config.RAG_COLLECTION_NAME
 
-    def _make_request(
-        self, method: str, endpoint: str, data: dict | None = None
-    ) -> dict:
-        """Make a REST API request to ChromaDB."""
-        url = f"{self.base_url}{endpoint}"
-        headers = {"Content-Type": "application/json"}
-
-        try:
-            if method.upper() == "GET":
-                response = requests.get(url, headers=headers)
-            elif method.upper() == "POST":
-                response = requests.post(url, headers=headers, json=data)
-            else:
-                raise ValueError(f"Unsupported method: {method}")
-
-            response.raise_for_status()
-            return response.json()
-        except requests.exceptions.RequestException as e:
-            raise RuntimeError(f"Request failed: {e!s}") from e
-
     def create_collection(self) -> None:
         """Create a collection if it doesn't exist."""
-        # Check if collection exists
         try:
-            collections = self._make_request("GET", "/api/v1/collections")
-            existing_collections = [
-                col.get("name", "") for col in collections.get("data", [])
-            ]
-        except Exception:
-            # If v1 API fails, assume collection doesn't exist
-            existing_collections = []
-
-        if self.collection_name not in existing_collections:
-            # Create collection
-            data = {
-                "name": self.collection_name,
-                "metadata": {"description": "WordPress Codex Plugin Documentation"},
-            }
-            try:
-                self._make_request("POST", "/api/v1/collections", data)
-                print(f"Created collection: {self.collection_name}")
-            except Exception:
-                print(
-                    f"Collection {self.collection_name} will be created automatically"
-                )
-        else:
+            # Try to get existing collection
+            collection = self.client.get_collection(self.collection_name)
             print(f"Collection already exists: {self.collection_name}")
+        except Exception:
+            # Collection doesn't exist, create it
+            try:
+                collection = self.client.create_collection(
+                    name=self.collection_name,
+                    metadata={"description": "WordPress Codex Plugin Documentation"}
+                )
+                print(f"Created collection: {self.collection_name}")
+            except Exception as e:
+                # If collection already exists, that's fine
+                if "already exists" in str(e):
+                    print(f"Collection already exists: {self.collection_name}")
+                else:
+                    print(f"Error creating collection: {e}")
+                    raise
 
     def add_documents(
         self, ids: list, documents: list, metadatas: list, embeddings: list
     ) -> None:
         """Add documents to the collection."""
-        data = {
-            "collection_name": self.collection_name,
-            "ids": ids,
-            "documents": documents,
-            "metadatas": metadatas,
-            "embeddings": embeddings,
-        }
-
-        self._make_request("POST", "/api/v1/collections/add", data)
+        collection = self.client.get_collection(self.collection_name)
+        collection.add(
+            ids=ids,
+            documents=documents,
+            metadatas=metadatas,
+            embeddings=embeddings
+        )
 
 
 async def ingest(section: str) -> None:
-    """Ingest WordPress documentation using WPCodexClient and REST API."""
+    """Ingest WordPress documentation using WPCodexClient and ChromaDB client."""
 
-    # Initialize ChromaDB REST client
-    chroma_client = ChromaDBRESTClient()
+    # Initialize ChromaDB client
+    chroma_client = ChromaDBClient()
 
     # Create collection
     chroma_client.create_collection()
@@ -107,7 +81,7 @@ async def ingest(section: str) -> None:
 
     # Add documents in batches to avoid overwhelming the server
     batch_size = 100
-    total_chunks = processed_data["total_chunks"]
+    total_chunks = processed_data['total_chunks']
 
     for i in range(0, total_chunks, batch_size):
         end_idx = min(i + batch_size, total_chunks)
@@ -116,16 +90,14 @@ async def ingest(section: str) -> None:
         batch_metadatas = processed_data["metadatas"][i:end_idx]
         batch_embeddings = processed_data["embeddings"][i:end_idx]
 
-        print(
-            f"Adding batch {i//batch_size + 1}/{(total_chunks + batch_size - 1)//batch_size} ({len(batch_ids)} chunks)..."
-        )
+        print(f"Adding batch {i//batch_size + 1}/{(total_chunks + batch_size - 1)//batch_size} ({len(batch_ids)} chunks)...")
 
         try:
             chroma_client.add_documents(
                 ids=batch_ids,
                 documents=batch_documents,
                 metadatas=batch_metadatas,
-                embeddings=batch_embeddings,
+                embeddings=batch_embeddings
             )
         except Exception as e:
             print(f"Error adding batch {i//batch_size + 1}: {e}")
@@ -137,24 +109,20 @@ async def ingest(section: str) -> None:
     )
 
 
-def main() -> None:
-    """Main entry point for the ingestion script."""
-    parser = argparse.ArgumentParser(
-        description="Ingest WordPress Codex documentation into vector database"
-    )
+def main():
+    """Main function to run the ingestion script."""
+    parser = argparse.ArgumentParser(description="Ingest WordPress documentation into ChromaDB")
     parser.add_argument(
         "--section",
+        type=str,
         default="plugin",
-        choices=["plugin"],
-        help="WordPress docs section to ingest",
+        help="WordPress documentation section to ingest (default: plugin)"
     )
+    
     args = parser.parse_args()
-
+    
     try:
         asyncio.run(ingest(args.section))
-    except KeyboardInterrupt:
-        print("\nIngestion interrupted by user.")
-        sys.exit(1)
     except Exception as e:
         print(f"Error during ingestion: {e}")
         sys.exit(1)

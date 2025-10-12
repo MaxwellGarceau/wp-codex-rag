@@ -20,7 +20,7 @@ class WordPressAPIResponse(BaseModel):
     id: int = Field(description="Unique identifier for the post/page")
     link: str = Field(description="URL to the post/page")
     title: dict[str, str] = Field(description="Title object with rendered content")
-    content: dict[str, str] = Field(description="Content object with rendered HTML")
+    content: dict[str, str | bool] = Field(description="Content object with rendered HTML")
     excerpt: dict[str, str] | None = Field(
         default=None, description="Excerpt object with rendered content"
     )
