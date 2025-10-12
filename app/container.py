@@ -1,5 +1,5 @@
 from dependency_injector.containers import DeclarativeContainer, WiringConfiguration
-from dependency_injector.providers import Factory, Singleton
+from dependency_injector.providers import Factory, Singleton, Callable
 from openai import OpenAI
 
 from app.auth.application.service.jwt import JwtService
@@ -23,8 +23,11 @@ class Container(DeclarativeContainer):
     jwt_service = Factory(JwtService)
     openai_client = Factory(OpenAI, api_key=config.OPENAI_API_KEY)
     openai_llm_client = Factory(OpenAIClient, client=openai_client)
-    llm_service_factory = Factory(
-        LLMServiceFactory,
-        clients={LLMProvider.OPENAI: openai_llm_client}
-    )
+
+    def _create_llm_clients_dict(openai_llm_client):
+        """Create the clients dictionary with resolved instances."""
+        return {LLMProvider.OPENAI: openai_llm_client}
+
+    llm_clients = Callable(_create_llm_clients_dict, openai_llm_client=openai_llm_client)
+    llm_service_factory = Factory(LLMServiceFactory, clients=llm_clients)
     rag_service = Factory(RAGService, llm_service_factory=llm_service_factory)
