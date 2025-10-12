@@ -147,11 +147,11 @@ class HuggingFaceClient(LLMClientInterface):
                 
                 outputs = self.completion_model.generate(**generation_params)
             
-            # Decode the response
-            response = self.tokenizer.decode(outputs[0], skip_special_tokens=True)
+            # Decode the response (keep special tokens for parsing)
+            response_with_tokens = self.tokenizer.decode(outputs[0], skip_special_tokens=False)
             
             # Extract only the assistant's response
-            answer = self._extract_assistant_response(response, full_prompt)
+            answer = self._extract_assistant_response(response_with_tokens, full_prompt)
 
             # Check if we hit the token limit and add truncation message if needed
             answer = self._handle_token_limit_truncation(answer, outputs, max_tokens)
@@ -221,6 +221,6 @@ class HuggingFaceClient(LLMClientInterface):
             answer = response[len(full_prompt):].strip()
         
         # Clean up any remaining special tokens
-        answer = answer.replace("<|end|>", "").replace("<|user|>", "").strip()
+        answer = answer.replace("<|end|>", "").replace("<|user|>", "").replace("<|endoftext|>", "").strip()
         
         return answer
