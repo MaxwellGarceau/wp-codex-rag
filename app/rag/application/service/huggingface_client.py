@@ -150,8 +150,8 @@ class HuggingFaceClient(LLMClientInterface):
             # Decode the response
             response = self.tokenizer.decode(outputs[0], skip_special_tokens=True)
             
-            # Remove the original prompt from the response
-            answer = response[len(full_prompt):].strip()
+            # Extract only the assistant's response
+            answer = self._extract_assistant_response(response, full_prompt)
 
             # Check if we hit the token limit and add truncation message if needed
             answer = self._handle_token_limit_truncation(answer, outputs, max_tokens)
@@ -191,5 +191,36 @@ class HuggingFaceClient(LLMClientInterface):
             # Add a note that the response was truncated
             answer += "\n\n[Response truncated due to length limit]"
             logger.warning(f"Response hit token limit of {max_tokens}")
+        
+        return answer
+    
+    def _extract_assistant_response(self, response: str, full_prompt: str) -> str:
+        """
+        Extract only the assistant's response from the full model output.
+        
+        Args:
+            response: The full decoded response from the model
+            full_prompt: The original prompt that was sent to the model
+            
+        Returns:
+            Only the assistant's response text
+        """
+        # Try to find the assistant marker in the response
+        assistant_marker = "<|assistant|>"
+        
+        if assistant_marker in response:
+            # Split on the assistant marker and take everything after it
+            parts = response.split(assistant_marker, 1)
+            if len(parts) > 1:
+                answer = parts[1].strip()
+            else:
+                # Fallback: use the original method
+                answer = response[len(full_prompt):].strip()
+        else:
+            # Fallback: use the original method
+            answer = response[len(full_prompt):].strip()
+        
+        # Clean up any remaining special tokens
+        answer = answer.replace("<|end|>", "").replace("<|user|>", "").strip()
         
         return answer
