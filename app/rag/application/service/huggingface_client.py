@@ -24,11 +24,24 @@ class HuggingFaceClient(LLMClientInterface):
         # Initialize completion model (using a small, efficient model for learning)
         self.completion_model_name = "microsoft/DialoGPT-medium"
         self.tokenizer = AutoTokenizer.from_pretrained(self.completion_model_name)
+        
+        # Optimize for Apple Silicon M4
+        if torch.backends.mps.is_available():
+            device = "mps"
+            dtype = torch.float16  # Use half precision for better performance on M4
+        elif torch.cuda.is_available():
+            device = "cuda"
+            dtype = torch.float16
+        else:
+            device = "cpu"
+            dtype = torch.float32
+            
         self.completion_model = AutoModelForCausalLM.from_pretrained(
             self.completion_model_name,
-            torch_dtype=torch.float16 if torch.cuda.is_available() else torch.float32,
-            device_map="auto" if torch.cuda.is_available() else None
+            torch_dtype=dtype,
+            device_map=device
         )
+        self.device = device
         
         # Add padding token if it doesn't exist
         if self.tokenizer.pad_token is None:
@@ -91,7 +104,7 @@ class HuggingFaceClient(LLMClientInterface):
             full_prompt = f"{system_prompt}\n\n{user_prompt}"
             
             # Tokenize the input
-            inputs = self.tokenizer.encode(full_prompt, return_tensors="pt")
+            inputs = self.tokenizer.encode(full_prompt, return_tensors="pt").to(self.device)
             
             # Generate response
             with torch.no_grad():
