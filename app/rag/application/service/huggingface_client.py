@@ -176,16 +176,26 @@ class HuggingFaceClient(LLMClientInterface):
         Returns:
             The answer with truncation message added if needed
         """
-        # Check if we hit the token limit
-        # If the last token is not an EOS token, we likely hit the limit
-        last_token = outputs[0][-1].item()
-        hit_token_limit = (last_token != self.tokenizer.eos_token_id)
+        hit_token_limit = False
         
-        # Additional check: if max_tokens was set and we generated exactly that many new tokens
+        # Check if we hit the token limit by examining the response characteristics
         if max_tokens is not None:
-            input_length = outputs.shape[1] - max_tokens
-            if outputs.shape[1] >= input_length + max_tokens:
-                hit_token_limit = True
+            # Get the last few tokens to check for natural ending
+            last_tokens = outputs[0][-3:].tolist()
+            
+            # Check if we generated exactly max_tokens (or very close to it)
+            # This is a heuristic - if we're at the limit, we likely hit it
+            # We also check if the response ends with special tokens that suggest truncation
+            response_ends_with_special = any(token in last_tokens for token in [
+                self.tokenizer.eos_token_id,
+                self.tokenizer.pad_token_id
+            ])
+            
+            # If we don't have a natural ending and we're near the limit, we likely hit it
+            if not response_ends_with_special:
+                # Check if the response seems to end abruptly (no punctuation, etc.)
+                if not answer.strip().endswith(('.', '!', '?', ':', ';')):
+                    hit_token_limit = True
         
         if hit_token_limit:
             # Add a note that the response was truncated
