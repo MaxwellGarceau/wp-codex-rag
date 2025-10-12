@@ -21,10 +21,13 @@ class HuggingFaceClient(LLMClientInterface):
         self.embedding_model = SentenceTransformer('all-MiniLM-L6-v2')
         logger.info("Embedding model loaded: all-MiniLM-L6-v2")
         
-        # Initialize completion model - choose based on your needs
-        # Options: "microsoft/DialoGPT-small" (fast, basic), "microsoft/DialoGPT-medium" (slower, better)
-        # For better quality, consider: "distilgpt2" or "gpt2" (but larger)
-        self.completion_model_name = "microsoft/DialoGPT-small"
+        # Initialize completion model - using Phi-3 Mini for much better quality
+        # Options: 
+        # - "microsoft/Phi-3-mini-4k-instruct" (2.3GB, excellent quality)
+        # - "meta-llama/Llama-3.2-3B-Instruct" (2GB, excellent quality) 
+        # - "google/gemma-2b-it" (1.6GB, good quality, very fast)
+        # - "microsoft/DialoGPT-small" (336MB, basic quality)
+        self.completion_model_name = "microsoft/Phi-3-mini-4k-instruct"
         self.tokenizer = AutoTokenizer.from_pretrained(self.completion_model_name)
         
         # Optimize for Apple Silicon M4
@@ -102,8 +105,18 @@ class HuggingFaceClient(LLMClientInterface):
         logger.debug("Generating completion using HuggingFace")
         
         try:
-            # Combine system and user prompts
-            full_prompt = f"{system_prompt}\n\n{user_prompt}"
+            # Format prompts for Phi-3 (uses chat format)
+            messages = [
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_prompt}
+            ]
+            
+            # Apply chat template
+            full_prompt = self.tokenizer.apply_chat_template(
+                messages, 
+                tokenize=False, 
+                add_generation_prompt=True
+            )
             
             # Tokenize the input
             inputs = self.tokenizer.encode(full_prompt, return_tensors="pt").to(self.device)
@@ -112,12 +125,12 @@ class HuggingFaceClient(LLMClientInterface):
             with torch.no_grad():
                 outputs = self.completion_model.generate(
                     inputs,
-                    max_length=inputs.shape[1] + 150,  # Generate up to 150 new tokens
+                    max_new_tokens=150,  # Generate up to 150 new tokens
                     temperature=temperature,
                     do_sample=True,
                     pad_token_id=self.tokenizer.eos_token_id,
                     eos_token_id=self.tokenizer.eos_token_id,
-                    no_repeat_ngram_size=2
+                    repetition_penalty=1.1
                 )
             
             # Decode the response
@@ -125,12 +138,6 @@ class HuggingFaceClient(LLMClientInterface):
             
             # Remove the original prompt from the response
             answer = response[len(full_prompt):].strip()
-            
-            # Clean up the response
-            if answer.startswith("User:"):
-                answer = answer[5:].strip()
-            if answer.startswith("Assistant:"):
-                answer = answer[10:].strip()
             
             logger.debug(f"Generated completion with {len(answer)} characters")
             return answer
