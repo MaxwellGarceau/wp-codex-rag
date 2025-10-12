@@ -1,10 +1,16 @@
 """
-RAG response DTOs for query results.
+RAG request and response DTOs for query operations.
 """
 
 from typing import Any
 
 from pydantic import BaseModel
+
+
+class RAGQueryRequestDTO(BaseModel):
+    """DTO for RAG query request."""
+
+    question: str
 
 
 class RAGSourceDTO(BaseModel):
