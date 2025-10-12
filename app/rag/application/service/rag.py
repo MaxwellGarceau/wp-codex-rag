@@ -62,7 +62,9 @@ class RAGService(RAGUseCase):
             logger.debug("Generating answer using LLM")
             system_prompt = (
                 "You are a helpful assistant answering questions about WordPress. "
-                "Use only the provided context. If unsure, say you don't know."
+                "Use only the provided context. If unsure, say you don't know. "
+                "Provide clear, concise answers. Be thorough but avoid unnecessary details. "
+                "Focus on the most important information first."
             )
             context_block = "\n\n".join(contexts)
             user_prompt = f"Question: {question}\n\nContext:\n{context_block}"
@@ -72,7 +74,8 @@ class RAGService(RAGUseCase):
                 provider=LLMProvider.HUGGINGFACE,
                 system_prompt=system_prompt,
                 user_prompt=user_prompt,
-                temperature=0.2
+                temperature=0.2,
+                max_tokens=1000  # Good balance for WordPress documentation
             )
             logger.info(f"Generated answer with {len(answer)} characters")
 

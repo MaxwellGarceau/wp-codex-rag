@@ -146,6 +146,16 @@ class HuggingFaceClient(LLMClientInterface):
             # Remove the original prompt from the response
             answer = response[len(full_prompt):].strip()
             
+            # Check if we hit the token limit
+            # If the last token is not an EOS token, we likely hit the limit
+            last_token = outputs[0][-1].item()
+            hit_token_limit = (last_token != self.tokenizer.eos_token_id)
+            
+            if hit_token_limit:
+                # Add a note that the response was truncated
+                answer += "\n\n[Response truncated due to length limit]"
+                logger.warning(f"Response hit token limit of {max_tokens}")
+            
             logger.debug(f"Generated completion with {len(answer)} characters")
             return answer
             
