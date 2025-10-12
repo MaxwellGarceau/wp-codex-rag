@@ -1,15 +1,12 @@
 import argparse
 import asyncio
-import json
-from typing import Iterable
 
 import chromadb
-from chromadb.config import Settings
 import httpx
+from chromadb.config import Settings
 from openai import OpenAI
 
 from core.config import config
-
 
 WP_PLUGIN_HANDBOOK_API = "https://developer.wordpress.org/wp-json/wp/v2/plugin-handbook"
 
@@ -64,7 +61,9 @@ def chunk_text(text: str, chunk_size: int = 1200, overlap: int = 200) -> list[st
 
 
 async def ingest(section: str) -> None:
-    client = chromadb.Client(Settings(persist_directory=config.CHROMA_PERSIST_DIRECTORY))
+    client = chromadb.Client(
+        Settings(persist_directory=config.CHROMA_PERSIST_DIRECTORY)
+    )
     collection = client.get_or_create_collection(name=config.RAG_COLLECTION_NAME)
 
     openai_client = OpenAI(api_key=config.OPENAI_API_KEY)
@@ -88,22 +87,29 @@ async def ingest(section: str) -> None:
     batch_size = 64
     embeddings: list[list[float]] = []
     for i in range(0, len(documents), batch_size):
-        batch = documents[i:i + batch_size]
-        resp = openai_client.embeddings.create(input=batch, model=config.OPENAI_EMBEDDING_MODEL)
+        batch = documents[i : i + batch_size]
+        resp = openai_client.embeddings.create(
+            input=batch, model=config.OPENAI_EMBEDDING_MODEL
+        )
         embeddings.extend([d.embedding for d in resp.data])
 
-    collection.add(ids=ids, documents=documents, metadatas=metadatas, embeddings=embeddings)
+    collection.add(
+        ids=ids, documents=documents, metadatas=metadatas, embeddings=embeddings
+    )
     client.persist()
-    print(f"Ingested {len(documents)} chunks into collection '{config.RAG_COLLECTION_NAME}'.")
+    print(
+        f"Ingested {len(documents)} chunks into collection '{config.RAG_COLLECTION_NAME}'."
+    )
 
 
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--section", default="plugin", choices=["plugin"], help="WordPress docs section")
+    parser.add_argument(
+        "--section", default="plugin", choices=["plugin"], help="WordPress docs section"
+    )
     args = parser.parse_args()
     asyncio.run(ingest(args.section))
 
 
 if __name__ == "__main__":
     main()
-

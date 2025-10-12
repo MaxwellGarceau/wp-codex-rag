@@ -1,6 +1,6 @@
-from pydantic import BaseModel, Field, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 from sqlalchemy import String
-from sqlalchemy.orm import Mapped, mapped_column, composite
+from sqlalchemy.orm import Mapped, composite, mapped_column
 
 from app.user.domain.vo.location import Location
 from core.db import Base

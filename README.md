@@ -111,6 +111,25 @@ This project uses a **hybrid approach** for development:
 > pre-commit
 ```
 
+### Code Quality (Linting & Formatting)
+
+This project uses Ruff (linter), Black (formatter), and MyPy (type checker) for code quality:
+
+```shell
+# Run all quality checks
+make quality
+
+# Auto-fix issues
+make fix
+
+# Individual commands
+make lint          # Check code quality
+make format        # Format code
+make type-check    # Check types
+```
+
+Pre-commit hooks automatically run these checks before commits.
+
 ## SQLAlchemy for asyncio context
 
 ```python

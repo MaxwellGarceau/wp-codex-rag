@@ -2,63 +2,78 @@
 """
 Poetry scripts for the wp-codex-rag project
 """
+import os
 import subprocess
 import sys
-import os
 
 
 def start():
     """Start the development server with live reload"""
     os.environ["ENV"] = "local"
     os.environ["DEBUG"] = "true"
-    subprocess.run([
-        "uvicorn",
-        "app.server:app",
-        "--host", "0.0.0.0",
-        "--port", "8000",
-        "--reload"
-    ])
+    subprocess.run(
+        [
+            "uvicorn",
+            "app.server:app",
+            "--host",
+            "0.0.0.0",
+            "--port",
+            "8000",
+            "--reload",
+        ],
+        check=False,
+    )
 
 
 def migrate():
     """Run database migrations"""
-    subprocess.run(["alembic", "upgrade", "head"])
+    subprocess.run(["alembic", "upgrade", "head"], check=False)
 
 
 def migrate_create():
     """Create a new migration"""
-    subprocess.run(["alembic", "revision", "--autogenerate", "-m", "auto migration"])
+    subprocess.run(
+        ["alembic", "revision", "--autogenerate", "-m", "auto migration"], check=False
+    )
 
 
 def test():
     """Run tests"""
-    subprocess.run(["pytest"])
+    subprocess.run(["pytest"], check=False)
 
 
 def test_cov():
     """Run tests with coverage"""
-    subprocess.run(["pytest", "--cov=app", "--cov-report=html"])
+    subprocess.run(["pytest", "--cov=app", "--cov-report=html"], check=False)
 
 
 def seed():
     """Seed the database"""
-    subprocess.run([sys.executable, "scripts/ingest_wp_codex.py"])
+    subprocess.run([sys.executable, "scripts/ingest_wp_codex.py"], check=False)
 
 
 def docker_up():
     """Start Docker services (MySQL and Redis)"""
-    subprocess.run(["docker-compose", "-f", "docker/docker-compose.yml", "up", "mysql", "redis"])
+    subprocess.run(
+        ["docker-compose", "-f", "docker/docker-compose.yml", "up", "mysql", "redis"],
+        check=False,
+    )
+
 
 def docker_down():
     """Stop Docker services"""
-    subprocess.run(["docker-compose", "-f", "docker/docker-compose.yml", "down"])
+    subprocess.run(
+        ["docker-compose", "-f", "docker/docker-compose.yml", "down"], check=False
+    )
 
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
-        print("Available commands: start, migrate, migrate-create, test, test-cov, seed, docker-up")
+        print(
+            "Available commands: start, migrate, migrate-create, test, test-cov, seed, docker-up"
+        )
         sys.exit(1)
-    
+
     command = sys.argv[1]
     if command == "start":
         start()

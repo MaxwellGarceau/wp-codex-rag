@@ -1,16 +1,16 @@
-from typing import Optional, Any, Dict
-
 from pydantic import BaseModel, Field
 
 
 class ErrorDetail(BaseModel):
     """Error detail structure for API responses - matches frontend contract."""
-    
-    message: str = Field(default="Not provided", description="Human-readable error message")
+
+    message: str = Field(
+        default="Not provided", description="Human-readable error message"
+    )
     statusCode: int = Field(default=500, description="HTTP status code")
     type: str = Field(default="Not provided", description="Error type identifier")
     providerCode: str = Field(default="Not provided", description="Provider error code")
-    
+
     # Allow additional properties from original errors
     class Config:
         extra = "allow"
@@ -19,16 +19,16 @@ class ErrorDetail(BaseModel):
                 "message": "You exceeded your current quota, please check your plan and billing details.",
                 "statusCode": 429,
                 "type": "rate_limit",
-                "providerCode": "insufficient_quota"
+                "providerCode": "insufficient_quota",
             }
         }
 
 
 class ErrorResponse(BaseModel):
     """Standard error response structure for all API endpoints."""
-    
+
     error: ErrorDetail = Field(..., description="Error details")
-    
+
     class Config:
         json_schema_extra = {
             "example": {
@@ -36,7 +36,7 @@ class ErrorResponse(BaseModel):
                     "message": "You exceeded your current quota, please check your plan and billing details.",
                     "statusCode": 429,
                     "type": "rate_limit",
-                    "providerCode": "insufficient_quota"
+                    "providerCode": "insufficient_quota",
                 }
             }
         }

@@ -5,13 +5,12 @@ from fastapi.responses import JSONResponse
 
 from app.auth.adapter.input.api import router as auth_router
 from app.container import Container
-from app.user.adapter.input.api import router as user_router
 from app.rag.adapter.input.api import router as rag_router
+from app.user.adapter.input.api import router as user_router
 from core.config import config
 from core.exceptions import CustomException
-from core.fastapi.dependencies import Logging
 from core.exceptions.handlers import register_exception_handlers
-from core.logging_config import setup_logging
+from core.fastapi.dependencies import Logging
 from core.fastapi.middlewares import (
     AuthBackend,
     AuthenticationMiddleware,
@@ -19,6 +18,7 @@ from core.fastapi.middlewares import (
     SQLAlchemyMiddleware,
 )
 from core.helpers.cache import Cache, CustomKeyMaker, RedisBackend
+from core.logging_config import setup_logging
 
 
 def init_routers(app_: FastAPI) -> None:
@@ -52,7 +52,7 @@ def on_auth_error(request: Request, exc: Exception):
 def make_middleware() -> list[Middleware]:
     # Parse CORS origins from config
     cors_origins = config.CORS_ORIGINS.split(",") if config.CORS_ORIGINS else []
-    
+
     middleware = [
         Middleware(
             CORSMiddleware,
@@ -79,7 +79,7 @@ def init_cache() -> None:
 def create_app() -> FastAPI:
     # Initialize logging configuration
     setup_logging()
-    
+
     app_ = FastAPI(
         title="Hide",
         description="Hide API",

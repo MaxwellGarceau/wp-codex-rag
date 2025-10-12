@@ -43,6 +43,11 @@ accelerate = "^0.26.0"
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.4.4"
 types-redis = "^4.6.0.20240106"
+# Linting and formatting
+ruff = "^0.1.0"
+black = "^23.0.0"
+mypy = "^1.8.0"
+pre-commit = "^3.6.0"
 
 [tool.poetry.scripts]
 start = "scripts:start"
@@ -59,6 +64,101 @@ omit=["tests/*", "test_*.py", "migrations/*"]
 
 [tool.isort]
 profile="black"
+
+# Ruff configuration (linter)
+[tool.ruff]
+target-version = "py311"
+line-length = 88
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # pyflakes
+    "I",  # isort
+    "B",  # flake8-bugbear
+    "C4", # flake8-comprehensions
+    "UP", # pyupgrade
+    "ARG001", # unused-function-args
+    "SIM", # flake8-simplify
+    "TCH", # flake8-type-checking
+    "PTH", # flake8-use-pathlib
+    "ERA", # eradicate
+    "PD",  # pandas-vet
+    "PGH", # pygrep-hooks
+    "PL",  # pylint
+    "TRY", # tryceratops
+    "FLY", # flynt
+    "NPY", # numpy
+    "AIR", # airflow
+    "PERF", # perflint
+    "RUF", # ruff-specific rules
+]
+ignore = [
+    "E501",  # line too long, handled by black
+    "B008",  # do not perform function calls in argument defaults
+    "C901",  # too complex
+    "W191",  # indentation contains tabs
+    "PLR0913", # too many arguments
+    "PLR0912", # too many branches
+    "PLR0915", # too many statements
+    "TRY003", # avoid specifying long messages outside exception class
+]
+
+[tool.ruff.per-file-ignores]
+"__init__.py" = ["F401"]
+"tests/**/*.py" = ["PLR2004", "S101", "TID252"]
+
+[tool.ruff.isort]
+known-first-party = ["app", "core", "celery_task"]
+
+# Black configuration (formatter)
+[tool.black]
+line-length = 88
+target-version = ['py311']
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+  # directories
+  \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | build
+  | dist
+  | migrations
+)/
+'''
+
+# MyPy configuration (type checker)
+[tool.mypy]
+python_version = "3.11"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+disallow_untyped_decorators = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_no_return = true
+warn_unreachable = true
+strict_equality = true
+show_error_codes = true
+
+[[tool.mypy.overrides]]
+module = [
+    "celery.*",
+    "chromadb.*",
+    "transformers.*",
+    "torch.*",
+    "sentence_transformers.*",
+    "accelerate.*",
+    "langchain.*",
+    "langchain_openai.*",
+]
+ignore_missing_imports = true
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

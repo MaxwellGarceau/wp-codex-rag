@@ -1,7 +1,8 @@
 from abc import ABC, abstractmethod
+
 from app.user.application.dto import LoginResponseDTO
-from app.user.domain.entity.user import User
 from app.user.domain.command import CreateUserCommand
+from app.user.domain.entity.user import User
 
 
 class UserUseCase(ABC):
