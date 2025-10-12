@@ -120,13 +120,20 @@ class HuggingFaceClient(LLMClientInterface):
                 add_generation_prompt=True
             )
             
-            # Tokenize the input
-            inputs = self.tokenizer.encode(full_prompt, return_tensors="pt").to(self.device)
+            # Tokenize the input with proper attention mask
+            inputs = self.tokenizer(
+                full_prompt, 
+                return_tensors="pt", 
+                padding=True, 
+                truncation=True
+            ).to(self.device)
             
             # Generate response
             with torch.no_grad():
                 # Prepare generation parameters
                 generation_params = {
+                    "input_ids": inputs["input_ids"],
+                    "attention_mask": inputs["attention_mask"],
                     "temperature": temperature,
                     "do_sample": True,
                     "pad_token_id": self.tokenizer.eos_token_id,
@@ -138,7 +145,7 @@ class HuggingFaceClient(LLMClientInterface):
                 if max_tokens is not None:
                     generation_params["max_new_tokens"] = max_tokens
                 
-                outputs = self.completion_model.generate(inputs, **generation_params)
+                outputs = self.completion_model.generate(**generation_params)
             
             # Decode the response
             response = self.tokenizer.decode(outputs[0], skip_special_tokens=True)
@@ -173,6 +180,12 @@ class HuggingFaceClient(LLMClientInterface):
         # If the last token is not an EOS token, we likely hit the limit
         last_token = outputs[0][-1].item()
         hit_token_limit = (last_token != self.tokenizer.eos_token_id)
+        
+        # Additional check: if max_tokens was set and we generated exactly that many new tokens
+        if max_tokens is not None:
+            input_length = outputs.shape[1] - max_tokens
+            if outputs.shape[1] >= input_length + max_tokens:
+                hit_token_limit = True
         
         if hit_token_limit:
             # Add a note that the response was truncated
