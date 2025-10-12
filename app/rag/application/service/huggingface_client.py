@@ -125,7 +125,7 @@ class HuggingFaceClient(LLMClientInterface):
             with torch.no_grad():
                 outputs = self.completion_model.generate(
                     inputs,
-                    max_new_tokens=150,  # Generate up to 150 new tokens
+                    max_new_tokens=500,  # Generate up to 500 new tokens for longer responses
                     temperature=temperature,
                     do_sample=True,
                     pad_token_id=self.tokenizer.eos_token_id,
