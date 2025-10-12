@@ -1,7 +1,6 @@
 from typing import Any
 
 import chromadb
-from chromadb.config import Settings
 
 from app.rag.application.dto import RAGQueryResponseDTO, RAGSourceDTO
 from app.rag.application.service.llm_service_factory import LLMServiceFactory
@@ -16,8 +15,11 @@ logger = get_logger(__name__)
 
 class RAGService(RAGUseCase):
     def __init__(self, llm_service_factory: LLMServiceFactory) -> None:
-        self.client = chromadb.Client(
-            Settings(persist_directory=config.CHROMA_PERSIST_DIRECTORY)
+        # Connect to ChromaDB server running in Docker
+        self.client = chromadb.HttpClient(
+            host=config.CHROMA_SERVER_HOST,
+            port=config.CHROMA_SERVER_PORT,
+            settings=chromadb.Settings(allow_reset=True),
         )
         self.collection = self.client.get_or_create_collection(
             name=config.RAG_COLLECTION_NAME
@@ -62,21 +64,25 @@ class RAGService(RAGUseCase):
             # Generate answer using LLM
             logger.debug("Generating answer using LLM")
             system_prompt = (
-                "You are a helpful assistant answering questions about WordPress. "
-                "Use only the provided context. If unsure, say you don't know. "
-                "Provide clear, concise answers. Be thorough but avoid unnecessary details. "
-                "Focus on the most important information first."
+                "You are a WordPress expert assistant. Answer questions using ONLY the provided context. "
+                "Keep responses SHORT and FOCUSED (2-3 sentences maximum). "
+                "If the context doesn't contain the answer, say 'I don't have enough information in the provided context.' "
+                "Do not add extra details or go beyond what's in the context."
             )
             context_block = "\n\n".join(contexts)
             user_prompt = f"Question: {question}\n\nContext:\n{context_block}"
+
+            # Log the final assembled prompt for debugging
+            logger.info(f"Final prompt length: {len(user_prompt)} characters")
+            logger.debug(f"Final assembled prompt:\n{user_prompt}")
 
             answer = self.llm_factory.execute_operation(
                 operation=LLMOperation.COMPLETION,
                 provider=LLMProvider.HUGGINGFACE,
                 system_prompt=system_prompt,
                 user_prompt=user_prompt,
-                temperature=0.2,
-                max_tokens=1000,  # Good balance for WordPress documentation
+                temperature=0.1,  # Lower temperature for more focused responses
+                max_tokens=150,  # Much shorter responses
             )
             logger.info(f"Generated answer with {len(answer)} characters")
 
@@ -87,4 +93,4 @@ class RAGService(RAGUseCase):
         except Exception as e:
             logger.error(f"Unexpected error in RAG query: {e!s}", exc_info=True)
             # Re-raise the original exception to preserve all its properties
-            raise e
+            raise

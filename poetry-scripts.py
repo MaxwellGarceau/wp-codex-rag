@@ -48,8 +48,15 @@ def test_cov():
 
 
 def seed():
-    """Seed the database"""
+    """Seed the vector database with WordPress Codex documentation"""
     subprocess.run([sys.executable, "scripts/ingest_wp_codex.py"], check=False)
+
+
+def check_chroma():
+    """Check ChromaDB data and collections"""
+    # Pass all arguments after 'check-chroma' to the script
+    args = sys.argv[2:] if len(sys.argv) > 2 else []
+    subprocess.run([sys.executable, "scripts/check_chroma_db.py"] + args, check=False)
 
 
 def docker_up():
@@ -70,7 +77,7 @@ def docker_down():
 if __name__ == "__main__":
     if len(sys.argv) < 2:
         print(
-            "Available commands: start, migrate, migrate-create, test, test-cov, seed, docker-up"
+            "Available commands: start, migrate, migrate-create, test, test-cov, seed, check-chroma, docker-up"
         )
         sys.exit(1)
 
@@ -87,6 +94,8 @@ if __name__ == "__main__":
         test_cov()
     elif command == "seed":
         seed()
+    elif command == "check-chroma":
+        check_chroma()
     elif command == "docker-up":
         docker_up()
     else:

@@ -42,7 +42,7 @@ engines = {
 
 class RoutingSession(Session):
     def get_bind(self, mapper=None, clause=None, **kw):
-        if self._flushing or isinstance(clause, (Update, Delete, Insert)):
+        if self._flushing or isinstance(clause, Update | Delete | Insert):
             return engines[EngineType.WRITER].sync_engine
         else:
             return engines[EngineType.READER].sync_engine

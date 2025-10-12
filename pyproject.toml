@@ -50,14 +50,15 @@ mypy = "^1.8.0"
 pre-commit = "^3.6.0"
 
 [tool.poetry.scripts]
-start = "scripts:start"
-migrate = "scripts:migrate"
-migrate-create = "scripts:migrate_create"
-test = "scripts:test"
-test-cov = "scripts:test_cov"
-seed = "scripts:seed"
-docker-up = "scripts:docker_up"
-docker-down = "scripts:docker_down"
+start = "poetry_scripts:start"
+migrate = "poetry_scripts:migrate"
+migrate-create = "poetry_scripts:migrate_create"
+test = "poetry_scripts:test"
+test-cov = "poetry_scripts:test_cov"
+seed = "poetry_scripts:seed"
+check-chroma = "poetry_scripts:check_chroma"
+docker-up = "poetry_scripts:docker_up"
+docker-down = "poetry_scripts:docker_down"
 
 [tool.coverage.run]
 omit=["tests/*", "test_*.py", "migrations/*"]

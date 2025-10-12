@@ -72,11 +72,11 @@ class HuggingFaceClient(LLMClientInterface):
             embedding_list = embedding.tolist()
 
             logger.debug(f"Generated embedding with {len(embedding_list)} dimensions")
+        except Exception:
+            logger.exception("HuggingFace embedding generation failed")
+            raise
+        else:
             return embedding_list
-
-        except Exception as e:
-            logger.error(f"HuggingFace embedding generation failed: {e!s}")
-            raise e
 
     def generate_completion(
         self,
@@ -114,6 +114,12 @@ class HuggingFaceClient(LLMClientInterface):
                 messages, tokenize=False, add_generation_prompt=True
             )
 
+            # Log the formatted prompt for debugging
+            logger.info(
+                f"Chat template formatted prompt length: {len(full_prompt)} characters"
+            )
+            logger.debug(f"Chat template formatted prompt:\n{full_prompt}")
+
             # Tokenize the input with proper attention mask
             inputs = self.tokenizer(
                 full_prompt, return_tensors="pt", padding=True, truncation=True
@@ -129,7 +135,9 @@ class HuggingFaceClient(LLMClientInterface):
                     "do_sample": True,
                     "pad_token_id": self.tokenizer.eos_token_id,
                     "eos_token_id": self.tokenizer.eos_token_id,
-                    "repetition_penalty": 1.1,
+                    "repetition_penalty": 1.2,  # Higher penalty to reduce repetition
+                    "no_repeat_ngram_size": 3,  # Prevent repeating 3-grams
+                    "early_stopping": True,  # Stop early if EOS token is generated
                 }
 
                 # Add max_new_tokens only if specified
@@ -143,6 +151,12 @@ class HuggingFaceClient(LLMClientInterface):
                 outputs[0], skip_special_tokens=False
             )
 
+            # Log the raw model output for debugging
+            logger.info(
+                f"Raw model output length: {len(response_with_tokens)} characters"
+            )
+            logger.debug(f"Raw model output:\n{response_with_tokens}")
+
             # Extract only the assistant's response
             answer = self._extract_assistant_response(response_with_tokens, full_prompt)
 
@@ -150,11 +164,11 @@ class HuggingFaceClient(LLMClientInterface):
             answer = self._handle_token_limit_truncation(answer, outputs, max_tokens)
 
             logger.debug(f"Generated completion with {len(answer)} characters")
+        except Exception:
+            logger.exception("HuggingFace completion generation failed")
+            raise
+        else:
             return answer
-
-        except Exception as e:
-            logger.error(f"HuggingFace completion generation failed: {e!s}")
-            raise e
 
     def _handle_token_limit_truncation(
         self, answer: str, outputs, max_tokens: int
@@ -187,10 +201,10 @@ class HuggingFaceClient(LLMClientInterface):
             )
 
             # If we don't have a natural ending and we're near the limit, we likely hit it
-            if not response_ends_with_special:
-                # Check if the response seems to end abruptly (no punctuation, etc.)
-                if not answer.strip().endswith((".", "!", "?", ":", ";")):
-                    hit_token_limit = True
+            if not response_ends_with_special and not answer.strip().endswith(
+                (".", "!", "?", ":", ";")
+            ):
+                hit_token_limit = True
 
         if hit_token_limit:
             # Add a note that the response was truncated

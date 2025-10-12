@@ -22,6 +22,8 @@ class Config(BaseSettings):
     OPENAI_MODEL: str = "gpt-4o-mini"
     OPENAI_EMBEDDING_MODEL: str = "text-embedding-3-small"
     CHROMA_PERSIST_DIRECTORY: str = ".chroma"
+    CHROMA_SERVER_HOST: str = "localhost"
+    CHROMA_SERVER_PORT: int = 8001
     RAG_COLLECTION_NAME: str = "wp_codex_plugin"
     # CORS settings
     CORS_ORIGINS: str = "http://localhost:3000,http://localhost:3001"
@@ -51,7 +53,7 @@ class ProductionConfig(Config):
     LOG_FILE: str = "app.log"
 
 
-def get_config():
+def get_config() -> Config:
     env = os.getenv("ENV", "local")
     config_type = {
         "test": TestConfig(),

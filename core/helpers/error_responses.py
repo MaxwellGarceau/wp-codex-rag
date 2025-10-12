@@ -1,5 +1,4 @@
 import json
-from typing import Optional
 
 from fastapi import HTTPException
 from fastapi.responses import JSONResponse
@@ -67,7 +66,7 @@ def create_error_response(
     status_code: int,
     message: str,
     error_type: str,
-    providerCode: Optional[str] = None,
+    providerCode: str | None = None,
     **additional_properties,
 ) -> JSONResponse:
     """
@@ -106,7 +105,7 @@ def create_http_exception(
     status_code: int,
     message: str,
     error_type: str,
-    providerCode: Optional[str] = None,
+    providerCode: str | None = None,
     **additional_properties,
 ) -> HTTPException:
     """
