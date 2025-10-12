@@ -21,8 +21,10 @@ class HuggingFaceClient(LLMClientInterface):
         self.embedding_model = SentenceTransformer('all-MiniLM-L6-v2')
         logger.info("Embedding model loaded: all-MiniLM-L6-v2")
         
-        # Initialize completion model (using a small, efficient model for learning)
-        self.completion_model_name = "microsoft/DialoGPT-medium"
+        # Initialize completion model - choose based on your needs
+        # Options: "microsoft/DialoGPT-small" (fast, basic), "microsoft/DialoGPT-medium" (slower, better)
+        # For better quality, consider: "distilgpt2" or "gpt2" (but larger)
+        self.completion_model_name = "microsoft/DialoGPT-small"
         self.tokenizer = AutoTokenizer.from_pretrained(self.completion_model_name)
         
         # Optimize for Apple Silicon M4
