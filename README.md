@@ -48,9 +48,9 @@ Frontend:
 # FastAPI Boilerplate (modified)
 
 # Features
-- Async SQLAlchemy session
-- Custom user class
-- Dependencies for specific permissions
+- RAG (Retrieval-Augmented Generation) for WordPress Codex
+- ChromaDB vector database
+- OpenAI and HuggingFace LLM support
 - Celery
 - Hot reload (local development)
 - Event dispatcher
@@ -66,14 +66,14 @@ poetry run start
 ```
 
 This project uses a **hybrid approach** for development:
-- **Docker**: Runs MySQL database and Redis cache services
+- **Docker**: Runs Redis cache and ChromaDB vector database services
 - **Local**: Runs the FastAPI application for faster development and debugging
 
-### Start Docker Services (MySQL + Redis)
+### Start Docker Services (Redis + ChromaDB)
 ```shell
 > poetry run docker-up
 # or manually:
-> docker-compose -f docker/docker-compose.yml up mysql redis
+> docker-compose -f docker/docker-compose.yml up redis chromadb
 ```
 
 ### Install Dependencies
@@ -81,12 +81,6 @@ This project uses a **hybrid approach** for development:
 > poetry install
 ```
 
-### Run Database Migrations
-```shell
-> poetry run migrate
-# or manually:
-> poetry run alembic upgrade head
-```
 
 ### Start Development Server
 ```shell
@@ -130,48 +124,21 @@ make type-check    # Check types
 
 Pre-commit hooks automatically run these checks before commits.
 
-## SQLAlchemy for asyncio context
+## RAG System
 
-```python
-from core.db import Transactional, session
+This application uses a Retrieval-Augmented Generation (RAG) system to answer questions about WordPress plugin development using the WordPress Codex documentation.
 
+### Vector Database
+- Uses ChromaDB for storing and retrieving document embeddings
+- Documents are processed and embedded using OpenAI's text-embedding-3-small model
+- Similarity search is performed to find relevant documentation sections
 
-@Transactional()
-async def create_user(self):
-    session.add(User(email="padocon@naver.com"))
-```
+### LLM Integration
+- Supports both OpenAI and HuggingFace models
+- Uses OpenAI's GPT-4o-mini for generating responses
+- Configurable through environment variables
 
-Do not use explicit `commit()`. `Transactional` class automatically do.
-
-### Query with asyncio.gather()
-When executing queries concurrently through `asyncio.gather()`, you must use the `session_factory` context manager rather than the globally used session.
-
-```python
-from core.db import session_factory
-
-
-async def get_by_id(self, *, user_id) -> User:
-    stmt = select(User)
-    async with session_factory() as read_session:
-        return await read_session.execute(query).scalars().first()
-
-
-async def main() -> None:
-    user_1, user_2 = await asyncio.gather(
-        get_by_id(user_id=1),
-        get_by_id(user_id=2),
-    )
-```
-If you do not use a database connection like `session.add()`, it is recommended to use a globally provided session.
-
-### Multiple databases
-
-Go to `core/config.py` and edit `WRITER_DB_URL` and `READER_DB_URL` in the config class.
-
-
-If you need additional logic to use the database, refer to the `get_bind()` method of `RoutingClass`.
-
-## Custom user for authentication
+## Authentication
 
 ```python
 from fastapi import Request
