@@ -1,12 +1,12 @@
 # RAG: WordPress Codex Q&A
 
 ## Overview
-This app adds a Retrieval-Augmented Generation (RAG) pipeline using Chroma and OpenAI to answer WordPress questions. It ingests WordPress Codex content (plugin development scope) into a vector store, retrieves relevant chunks, and forwards enriched prompts to an LLM.
+This app adds a Retrieval-Augmented Generation (RAG) pipeline using Chroma and Groq to answer WordPress questions. It ingests WordPress Codex content (plugin development scope) into a vector store, retrieves relevant chunks, and forwards enriched prompts to an LLM.
 
 ## Setup
 - Ensure Python dependencies are installed via Poetry
-- Create a `.env` (see `.env.example`) and set `OPENAI_API_KEY`
-- Optional: adjust `OPENAI_MODEL`, `OPENAI_EMBEDDING_MODEL`, `CHROMA_PERSIST_DIRECTORY`, `RAG_COLLECTION_NAME`
+- Create a `.env` (see `.env.example`) and set `GROQ_API_KEY`
+- Optional: adjust `CHROMA_PERSIST_DIRECTORY`, `RAG_COLLECTION_NAME`
 
 ## Ingestion
 ```shell
@@ -32,9 +32,7 @@ Set `NEXT_PUBLIC_API_BASE_URL` in your frontend environment when needed.
 ### Environment
 Backend uses variables in `core/config.py`. Create `.env` based on the following:
 
-- `OPENAI_API_KEY`: Your OpenAI API key
-- `OPENAI_MODEL`: Defaults to `gpt-4o-mini`
-- `OPENAI_EMBEDDING_MODEL`: Defaults to `text-embedding-3-small`
+- `GROQ_API_KEY`: Your Groq API key
 - `CHROMA_PERSIST_DIRECTORY`: Directory for Chroma persistence (mount a volume in prod)
 - `RAG_COLLECTION_NAME`: Defaults to `wp_codex_plugin`
 

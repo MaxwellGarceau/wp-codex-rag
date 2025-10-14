@@ -6,9 +6,9 @@ Embeddings are numerical representations of text that capture semantic meaning. 
 
 ## LLM Embedding Endpoint
 
-Our application uses OpenAI's embedding API to convert WordPress Codex content into vector representations:
+Our application uses HuggingFace's sentence transformer model to convert WordPress Codex content into vector representations:
 
-- **Model**: `text-embedding-3-small` (default, configurable via `OPENAI_EMBEDDING_MODEL`)
+- **Model**: `all-MiniLM-L6-v2` (HuggingFace sentence transformer)
 - **Purpose**: Convert documentation chunks into embeddings for vector storage
 - **Storage**: Embeddings are stored in ChromaDB for efficient similarity search
 - **Usage**: When users ask questions, we embed the query and find similar documentation chunks

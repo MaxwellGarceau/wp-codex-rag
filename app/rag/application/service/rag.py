@@ -34,7 +34,7 @@ class RAGService(RAGUseCase):
             logger.debug("Generating embeddings for question")
             query_embedding = self.llm_factory.execute_operation(
                 operation=LLMOperation.EMBEDDING,
-                provider=LLMProvider.HUGGINGFACE,
+                provider=LLMProvider.GROQ,
                 text=question,
             )
 
@@ -78,7 +78,7 @@ class RAGService(RAGUseCase):
 
             answer = self.llm_factory.execute_operation(
                 operation=LLMOperation.COMPLETION,
-                provider=LLMProvider.HUGGINGFACE,
+                provider=LLMProvider.GROQ,
                 system_prompt=system_prompt,
                 user_prompt=user_prompt,
                 temperature=0.1,  # Lower temperature for more focused responses
