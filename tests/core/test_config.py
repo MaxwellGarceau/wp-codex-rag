@@ -27,10 +27,8 @@ class TestConfigClass:
         assert config.DEBUG is True
         assert config.APP_HOST == "0.0.0.0"
         assert config.APP_PORT == 8000
-        # Note: OPENAI_API_KEY may be set from environment, so we test it exists
-        assert hasattr(config, "OPENAI_API_KEY")
-        assert config.OPENAI_MODEL == "gpt-4o-mini"
-        assert config.OPENAI_EMBEDDING_MODEL == "text-embedding-3-small"
+        # Note: GROQ_API_KEY may be set from environment, so we test it exists
+        assert hasattr(config, "GROQ_API_KEY")
         assert config.CHROMA_PERSIST_DIRECTORY == ".chroma"
         assert config.CHROMA_SERVER_HOST == "localhost"
         assert config.CHROMA_SERVER_PORT == 8001
@@ -51,8 +49,7 @@ class TestConfigClass:
                 "DEBUG": "false",
                 "APP_HOST": "127.0.0.1",
                 "APP_PORT": "9000",
-                "OPENAI_API_KEY": "test-key",
-                "OPENAI_MODEL": "gpt-4",
+                "GROQ_API_KEY": "test-key",
                 "LOG_LEVEL": "DEBUG",
             },
         ):
@@ -62,8 +59,7 @@ class TestConfigClass:
             assert config.DEBUG is False
             assert config.APP_HOST == "127.0.0.1"
             assert config.APP_PORT == 9000
-            assert config.OPENAI_API_KEY == "test-key"
-            assert config.OPENAI_MODEL == "gpt-4"
+            assert config.GROQ_API_KEY == "test-key"
             assert config.LOG_LEVEL == "DEBUG"
 
     def test_config_env_file_settings(self):
@@ -148,7 +144,6 @@ class TestProductionConfigClass:
         assert prod_config.ENV == "development"  # Default from Config
         assert prod_config.APP_HOST == "0.0.0.0"
         assert prod_config.APP_PORT == 8000
-        assert prod_config.OPENAI_MODEL == "gpt-4o-mini"
 
     def test_production_config_with_environment_variables(self):
         """Test ProductionConfig with environment variables."""
