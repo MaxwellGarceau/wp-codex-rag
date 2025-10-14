@@ -5,7 +5,6 @@ from app.container import Container
 from app.rag.adapter.input.api import router as rag_router
 from core.config import config
 from core.exceptions.handlers import register_exception_handlers
-from core.fastapi.dependencies import Logging
 from core.fastapi.middlewares import (
     ResponseLogMiddleware,
 )
@@ -54,7 +53,6 @@ def create_app() -> FastAPI:
         version="1.0.0",
         docs_url=None if config.ENV == "production" else "/docs",
         redoc_url=None if config.ENV == "production" else "/redoc",
-        dependencies=[Depends(Logging)],
         middleware=make_middleware(),
     )
     init_routers(app_=app_)
