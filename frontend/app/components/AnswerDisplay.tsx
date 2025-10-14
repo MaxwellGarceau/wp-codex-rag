@@ -1,4 +1,5 @@
 import { RAGSource } from "../services/ragClient";
+import { MarkdownRenderer } from "./MarkdownRenderer";
 
 interface AnswerDisplayProps {
   answer: string;
@@ -9,8 +10,8 @@ export function AnswerDisplay({ answer, sources }: AnswerDisplayProps) {
   return (
     <section className="space-y-3">
       <h2 className="text-xl font-semibold">Answer</h2>
-      <div className="rounded-md border border-gray-200 bg-white p-4 whitespace-pre-wrap">
-        {answer}
+      <div className="rounded-md border border-gray-200 bg-white p-4">
+        <MarkdownRenderer content={answer} />
       </div>
       {sources.length > 0 && (
         <div className="space-y-2">

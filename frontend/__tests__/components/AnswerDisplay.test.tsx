@@ -65,14 +65,14 @@ describe('AnswerDisplay', () => {
     const answerWithBreaks = 'Line 1\nLine 2\nLine 3'
     render(<AnswerDisplay answer={answerWithBreaks} sources={[]} />)
 
-    // Check that the answer is rendered (the text might be normalized)
+    // Check that the answer is rendered (the text might be normalized by markdown)
     expect(screen.getByText(/Line 1/)).toBeInTheDocument()
     expect(screen.getByText(/Line 2/)).toBeInTheDocument()
     expect(screen.getByText(/Line 3/)).toBeInTheDocument()
-    
-    // Check that the container has the correct class
-    const answerContainer = screen.getByText(/Line 1/).closest('div')
-    expect(answerContainer).toHaveClass('whitespace-pre-wrap')
+
+    // Check that the outer container has the correct class
+    const outerContainer = screen.getByText(/Line 1/).closest('div')?.parentElement
+    expect(outerContainer).toHaveClass('rounded-md', 'border', 'border-gray-200', 'bg-white', 'p-4')
   })
 
   it('should handle special characters in answer', () => {
@@ -120,8 +120,8 @@ describe('AnswerDisplay', () => {
     const section = screen.getByText('Answer').closest('section')
     expect(section).toHaveClass('space-y-3')
 
-    const answerDiv = screen.getByText('Test answer').closest('div')
-    expect(answerDiv).toHaveClass('rounded-md', 'border', 'border-gray-200', 'bg-white', 'p-4', 'whitespace-pre-wrap')
+    const answerDiv = screen.getByText('Test answer').closest('div')?.parentElement
+    expect(answerDiv).toHaveClass('rounded-md', 'border', 'border-gray-200', 'bg-white', 'p-4')
 
     const sourcesHeading = screen.getByText('Sources')
     expect(sourcesHeading).toHaveClass('font-medium')
@@ -139,5 +139,70 @@ describe('AnswerDisplay', () => {
     expect(screen.getByText('Source 1')).toBeInTheDocument()
     expect(screen.getByText('Source 2')).toBeInTheDocument()
     expect(screen.getAllByRole('link')).toHaveLength(2)
+  })
+
+  // Tests for markdown rendering functionality
+  it('should render markdown headings', () => {
+    const markdownAnswer = '# Main Heading\n## Sub Heading\n### Small Heading'
+    render(<AnswerDisplay answer={markdownAnswer} sources={[]} />)
+
+    // Use getAllByRole since there are multiple h2 elements (Answer heading + Sub Heading)
+    const h1Elements = screen.getAllByRole('heading', { level: 1 })
+    const h2Elements = screen.getAllByRole('heading', { level: 2 })
+    const h3Elements = screen.getAllByRole('heading', { level: 3 })
+
+    expect(h1Elements).toHaveLength(1)
+    expect(h1Elements[0]).toHaveTextContent('Main Heading')
+    expect(h2Elements).toHaveLength(2) // Answer heading + Sub Heading
+    expect(h2Elements[1]).toHaveTextContent('Sub Heading')
+    expect(h3Elements).toHaveLength(1)
+    expect(h3Elements[0]).toHaveTextContent('Small Heading')
+  })
+
+  it('should render inline code', () => {
+    const codeAnswer = 'Use the `wp_enqueue_script()` function to add scripts.'
+    render(<AnswerDisplay answer={codeAnswer} sources={[]} />)
+
+    const codeElement = screen.getByText('wp_enqueue_script()')
+    expect(codeElement.tagName).toBe('CODE')
+    expect(codeElement).toHaveClass('bg-gray-100', 'text-gray-800', 'px-1.5', 'py-0.5', 'rounded', 'text-sm', 'font-mono')
+  })
+
+  it('should render code blocks', () => {
+    const codeBlockAnswer = '```php\nfunction my_plugin_function() {\n    return "Hello World";\n}\n```'
+    render(<AnswerDisplay answer={codeBlockAnswer} sources={[]} />)
+
+    // Find the pre element directly since the text is broken up by syntax highlighting
+    const preElement = document.querySelector('pre')
+    expect(preElement).toHaveClass('bg-gray-900', 'text-gray-100', 'p-4', 'rounded-lg', 'overflow-x-auto', 'my-4', 'border')
+  })
+
+  it('should render bold and italic text', () => {
+    const formattedAnswer = 'This is **bold text** and this is __italic text__.'
+    render(<AnswerDisplay answer={formattedAnswer} sources={[]} />)
+
+    expect(screen.getByText('bold text')).toBeInTheDocument()
+    expect(screen.getByText('italic text')).toBeInTheDocument()
+  })
+
+  it('should render lists', () => {
+    const listAnswer = '- First item\n- Second item\n- Third item'
+    render(<AnswerDisplay answer={listAnswer} sources={[]} />)
+
+    const listItems = screen.getAllByRole('listitem')
+    expect(listItems).toHaveLength(3)
+    expect(listItems[0]).toHaveTextContent('First item')
+    expect(listItems[1]).toHaveTextContent('Second item')
+    expect(listItems[2]).toHaveTextContent('Third item')
+  })
+
+  it('should render links', () => {
+    const linkAnswer = 'Visit [WordPress.org](https://wordpress.org) for more information.'
+    render(<AnswerDisplay answer={linkAnswer} sources={[]} />)
+
+    const link = screen.getByRole('link', { name: 'WordPress.org' })
+    expect(link).toHaveAttribute('href', 'https://wordpress.org')
+    expect(link).toHaveAttribute('target', '_blank')
+    expect(link).toHaveAttribute('rel', 'noopener noreferrer')
   })
 })
