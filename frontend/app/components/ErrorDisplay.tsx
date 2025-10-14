@@ -1,16 +1,23 @@
 import { ErrorProperties } from "../services/ragClient";
+import { useEffect, useState } from "react";
 
 interface ErrorDisplayProps {
-  error: string; // JSON string of ErrorProperties
+  error: string; // Can be JSON string of ErrorProperties or plain error message
   onDismiss?: () => void;
 }
 
 // NOTE: Frontend relies on the BE contract for the error response
 export function ErrorDisplay({ error, onDismiss }: ErrorDisplayProps) {
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
   const parseError = (error: string): ErrorProperties => {
     try {
       const parsed = JSON.parse(error) as ErrorProperties;
-      
+
       // Ensure required properties exist with fallbacks
       return {
         message: parsed.message || "Unknown error",
@@ -28,6 +35,11 @@ export function ErrorDisplay({ error, onDismiss }: ErrorDisplayProps) {
       };
     }
   };
+
+  // Prevent hydration mismatch by not rendering until client-side
+  if (!isClient) {
+    return null;
+  }
 
   const { statusCode, type, message, providerCode } = parseError(error);
 

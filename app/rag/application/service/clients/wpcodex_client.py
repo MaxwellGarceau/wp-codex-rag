@@ -7,6 +7,7 @@ from app.rag.application.dto import ProcessedDocument, WordPressAPIResponse
 from app.rag.domain.interface.ingest_documentation_client import (
     IngestDocumentationClient,
 )
+from core.helpers.html_cleaner import HTMLCleaner
 from core.logging_config import get_logger
 
 logger = get_logger(__name__)
@@ -46,12 +47,16 @@ class WPCodexClient(IngestDocumentationClient):
     }
 
     def __init__(self) -> None:
-        """Initialize the WP Codex client with embedding model."""
+        """Initialize the WP Codex client with embedding model and HTML cleaner."""
         logger.info("Initializing WP Codex client...")
 
         # Initialize embedding model for local processing
         self.embedding_model = SentenceTransformer("all-MiniLM-L6-v2")
         logger.info("Embedding model loaded: all-MiniLM-L6-v2")
+
+        # Initialize HTML cleaner for processing WordPress content
+        self.html_cleaner = HTMLCleaner()
+        logger.info("HTML cleaner initialized")
 
     async def _fetch_wp_docs(self, endpoint: str) -> list[ProcessedDocument]:
         """
@@ -317,7 +322,17 @@ class WPCodexClient(IngestDocumentationClient):
         metadatas: list[dict[str, str]] = []
 
         for doc in docs:
-            for idx, chunk in enumerate(self._chunk_text(doc.content)):
+            # Clean HTML content before chunking
+            cleaned_content = self.html_cleaner.clean_html(doc.content)
+
+            # Skip documents with no content after cleaning
+            if not cleaned_content.strip():
+                logger.warning(
+                    f"Skipping document with no content after HTML cleaning: {doc.title}"
+                )
+                continue
+
+            for idx, chunk in enumerate(self._chunk_text(cleaned_content)):
                 ids.append(f"{doc.id}#c{idx}")
                 documents.append(chunk)
                 metadatas.append({"title": doc.title, "url": doc.url})
