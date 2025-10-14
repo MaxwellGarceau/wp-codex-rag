@@ -5,3 +5,69 @@
 html, body {
   height: 100%;
 }
+
+/* Custom styles for markdown content */
+.markdown-content {
+  line-height: 1.6;
+}
+
+.markdown-content h1:first-child,
+.markdown-content h2:first-child,
+.markdown-content h3:first-child,
+.markdown-content h4:first-child,
+.markdown-content h5:first-child,
+.markdown-content h6:first-child {
+  margin-top: 0;
+}
+
+.markdown-content p:last-child {
+  margin-bottom: 0;
+}
+
+/* Enhanced code block styling */
+.markdown-content pre {
+  position: relative;
+}
+
+.markdown-content pre code {
+  background: transparent !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+/* Inline code styling */
+.markdown-content code:not(pre code) {
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-size: 0.875em;
+}
+
+/* Table styling improvements */
+.markdown-content table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.markdown-content th {
+  background-color: #f9fafb;
+  font-weight: 600;
+}
+
+.markdown-content tr:nth-child(even) {
+  background-color: #f9fafb;
+}
+
+/* List styling improvements */
+.markdown-content ul ul,
+.markdown-content ol ol,
+.markdown-content ul ol,
+.markdown-content ol ul {
+  margin-top: 0.25rem;
+  margin-bottom: 0.25rem;
+}
+
+/* Blockquote styling improvements */
+.markdown-content blockquote p:last-child {
+  margin-bottom: 0;
+}
