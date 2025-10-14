@@ -29,7 +29,7 @@ class Config(BaseSettings):
 
 
 class TestConfig(Config):
-    pass
+    __test__ = False  # Prevent pytest from collecting this as a test class
 
 
 class LocalConfig(Config):
