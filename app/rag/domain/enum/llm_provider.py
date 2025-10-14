@@ -5,3 +5,4 @@ class LLMProvider(Enum):
     """Enumeration of supported LLM providers."""
 
     HUGGINGFACE = "huggingface"
+    GROQ = "groq"

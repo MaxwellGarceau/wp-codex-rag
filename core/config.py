@@ -12,6 +12,7 @@ class Config(BaseSettings):
     OPENAI_API_KEY: str = ""
     OPENAI_MODEL: str = "gpt-4o-mini"
     OPENAI_EMBEDDING_MODEL: str = "text-embedding-3-small"
+    GROQ_API_KEY: str = ""
     CHROMA_PERSIST_DIRECTORY: str = ".chroma"
     CHROMA_SERVER_HOST: str = "localhost"
     CHROMA_SERVER_PORT: int = 8001

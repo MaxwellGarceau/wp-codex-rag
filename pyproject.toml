@@ -21,6 +21,7 @@ openai = "^1.51.0"
 transformers = "^4.40.0"
 torch = "^2.2.0"
 sentence-transformers = "^3.0.0"
+groq = "^0.4.1"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.4.4"

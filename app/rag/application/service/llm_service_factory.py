@@ -30,7 +30,7 @@ class LLMServiceFactory:
     def execute_operation(
         self,
         operation: LLMOperation,
-        provider: LLMProvider = LLMProvider.HUGGINGFACE,
+        provider: LLMProvider = LLMProvider.GROQ,
         **kwargs: Any,
     ) -> Any:
         """
@@ -46,11 +46,11 @@ class LLMServiceFactory:
         """
         # Validate operation type
         if not isinstance(operation, LLMOperation):
-            raise ValueError(f"Unsupported operation: {operation}")
-        
+            raise TypeError(f"Unsupported operation: {operation}")
+
         # Validate provider type
         if not isinstance(provider, LLMProvider):
-            raise ValueError(f"No client available for provider: {provider}")
+            raise TypeError(f"No client available for provider: {provider}")
 
         logger.debug(
             f"Executing {operation.value} operation with {provider.value} provider"

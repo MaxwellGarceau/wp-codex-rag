@@ -89,13 +89,13 @@ class TestRAGService:
         # Check embedding call
         embedding_call = self.mock_llm_factory.execute_operation.call_args_list[0]
         assert embedding_call[1]["operation"] == LLMOperation.EMBEDDING
-        assert embedding_call[1]["provider"] == LLMProvider.HUGGINGFACE
+        assert embedding_call[1]["provider"] == LLMProvider.GROQ
         assert embedding_call[1]["text"] == question
 
         # Check completion call
         completion_call = self.mock_llm_factory.execute_operation.call_args_list[1]
         assert completion_call[1]["operation"] == LLMOperation.COMPLETION
-        assert completion_call[1]["provider"] == LLMProvider.HUGGINGFACE
+        assert completion_call[1]["provider"] == LLMProvider.GROQ
         assert completion_call[1]["temperature"] == 0.1
         assert completion_call[1]["max_tokens"] == 150
         assert (
