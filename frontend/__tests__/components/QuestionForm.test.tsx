@@ -39,7 +39,13 @@ describe('QuestionForm', () => {
     const textarea = screen.getByRole('textbox')
     await user.type(textarea, 'New question')
 
-    expect(onQuestionChange).toHaveBeenCalledWith('New question')
+    // user.type() calls onChange for each character, so we check that it was called
+    expect(onQuestionChange).toHaveBeenCalledTimes(12) // One for each character
+    // Check that it was called with individual characters
+    expect(onQuestionChange).toHaveBeenNthCalledWith(1, 'N')
+    expect(onQuestionChange).toHaveBeenNthCalledWith(12, 'n')
+    // The textarea value doesn't change because it's controlled by the parent component
+    // The parent would need to update the question prop for the value to change
   })
 
   it('should call onSubmit when button is clicked', async () => {

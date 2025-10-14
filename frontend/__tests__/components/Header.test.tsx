@@ -32,7 +32,7 @@ describe('Header', () => {
     const heading = screen.getByRole('heading', { level: 1 })
     expect(heading).toHaveClass('text-3xl', 'font-semibold')
 
-    const description = screen.getByText('Test')
+    const description = screen.getByRole('paragraph')
     expect(description).toHaveClass('text-gray-600')
   })
 
@@ -40,7 +40,11 @@ describe('Header', () => {
     render(<Header title="" description="" />)
 
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('')
-    expect(screen.getByText('')).toBeInTheDocument()
+    // Check that both title and description elements exist but are empty
+    const heading = screen.getByRole('heading', { level: 1 })
+    const description = screen.getByRole('paragraph')
+    expect(heading).toHaveTextContent('')
+    expect(description).toHaveTextContent('')
   })
 
   it('should handle special characters in title and description', () => {

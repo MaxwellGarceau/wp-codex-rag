@@ -65,8 +65,14 @@ describe('AnswerDisplay', () => {
     const answerWithBreaks = 'Line 1\nLine 2\nLine 3'
     render(<AnswerDisplay answer={answerWithBreaks} sources={[]} />)
 
-    const answerElement = screen.getByText(answerWithBreaks)
-    expect(answerElement).toHaveClass('whitespace-pre-wrap')
+    // Check that the answer is rendered (the text might be normalized)
+    expect(screen.getByText(/Line 1/)).toBeInTheDocument()
+    expect(screen.getByText(/Line 2/)).toBeInTheDocument()
+    expect(screen.getByText(/Line 3/)).toBeInTheDocument()
+    
+    // Check that the container has the correct class
+    const answerContainer = screen.getByText(/Line 1/).closest('div')
+    expect(answerContainer).toHaveClass('whitespace-pre-wrap')
   })
 
   it('should handle special characters in answer', () => {
@@ -110,7 +116,8 @@ describe('AnswerDisplay', () => {
   it('should have correct CSS classes', () => {
     render(<AnswerDisplay answer="Test answer" sources={mockSources} />)
 
-    const section = screen.getByRole('region')
+    // Find the section element (it doesn't have a region role)
+    const section = screen.getByText('Answer').closest('section')
     expect(section).toHaveClass('space-y-3')
 
     const answerDiv = screen.getByText('Test answer').closest('div')

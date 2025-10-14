@@ -1,21 +1,25 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import HomePage from '@/page'
-import { RAGClient } from '@/services/ragClient'
 
-// Mock the RAGClient
-vi.mock('@/services/ragClient')
+// Mock the RAGClient module before importing HomePage
+vi.mock('@/services/ragClient', () => {
+  const mockQuery = vi.fn()
+  return {
+    RAGClient: vi.fn().mockImplementation(() => ({
+      query: mockQuery,
+    })),
+    mockQuery, // Export the mock so we can access it in tests
+  }
+})
+
+import HomePage from '@/page'
+import { mockQuery } from '@/services/ragClient'
 
 describe('HomePage', () => {
-  let mockRAGClient: any
-
   beforeEach(() => {
     vi.clearAllMocks()
-    mockRAGClient = {
-      query: vi.fn(),
-    }
-    vi.mocked(RAGClient).mockImplementation(() => mockRAGClient)
+    mockQuery.mockClear()
   })
 
   it('should render the main page structure', () => {
@@ -36,7 +40,7 @@ describe('HomePage', () => {
         { title: 'WordPress.org', url: 'https://wordpress.org' }
       ]
     }
-    mockRAGClient.query.mockResolvedValueOnce(mockResponse)
+    mockQuery.mockResolvedValueOnce(mockResponse)
 
     render(<HomePage />)
 
@@ -55,7 +59,7 @@ describe('HomePage', () => {
   it('should handle query error', async () => {
     const user = userEvent.setup()
     const mockError = new Error('Network error')
-    mockRAGClient.query.mockRejectedValueOnce(mockError)
+    mockQuery.mockRejectedValueOnce(mockError)
 
     render(<HomePage />)
 
@@ -73,7 +77,7 @@ describe('HomePage', () => {
   it('should handle query error with message property', async () => {
     const user = userEvent.setup()
     const mockError = { message: 'Custom error message' }
-    mockRAGClient.query.mockRejectedValueOnce(mockError)
+    mockQuery.mockRejectedValueOnce(mockError)
 
     render(<HomePage />)
 
@@ -91,7 +95,7 @@ describe('HomePage', () => {
   it('should handle query error without message property', async () => {
     const user = userEvent.setup()
     const mockError = new Error()
-    mockRAGClient.query.mockRejectedValueOnce(mockError)
+    mockQuery.mockRejectedValueOnce(mockError)
 
     render(<HomePage />)
 
@@ -113,7 +117,7 @@ describe('HomePage', () => {
     const queryPromise = new Promise((resolve) => {
       resolveQuery = resolve
     })
-    mockRAGClient.query.mockReturnValueOnce(queryPromise)
+    mockQuery.mockReturnValueOnce(queryPromise)
 
     render(<HomePage />)
 
@@ -149,7 +153,7 @@ describe('HomePage', () => {
       sources: [{ title: 'Second source', url: 'https://example.com/2' }]
     }
 
-    mockRAGClient.query
+    mockQuery
       .mockResolvedValueOnce(firstResponse)
       .mockResolvedValueOnce(secondResponse)
 
@@ -187,7 +191,7 @@ describe('HomePage', () => {
       answer: 'Answer without sources',
       sources: []
     }
-    mockRAGClient.query.mockResolvedValueOnce(mockResponse)
+    mockQuery.mockResolvedValueOnce(mockResponse)
 
     render(<HomePage />)
 
@@ -209,7 +213,7 @@ describe('HomePage', () => {
       answer: 'Answer without sources property'
       // sources property missing
     }
-    mockRAGClient.query.mockResolvedValueOnce(mockResponse)
+    mockQuery.mockResolvedValueOnce(mockResponse)
 
     render(<HomePage />)
 
@@ -247,7 +251,7 @@ describe('HomePage', () => {
   it('should dismiss error when dismiss button is clicked', async () => {
     const user = userEvent.setup()
     const mockError = new Error('Test error')
-    mockRAGClient.query.mockRejectedValueOnce(mockError)
+    mockQuery.mockRejectedValueOnce(mockError)
 
     render(<HomePage />)
 
