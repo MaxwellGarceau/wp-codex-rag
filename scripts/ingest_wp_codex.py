@@ -9,7 +9,7 @@ import chromadb
 sys.path.insert(0, str(Path(__file__).parent.parent.resolve()))
 
 # Import after path modification
-from app.rag.application.service.clients.wpcodex_client import (
+from app.rag.application.service.clients.wpcodex_client import (  # noqa: E402
     WPCodexClient,
 )
 from core.config import config  # noqa: E402
@@ -30,7 +30,7 @@ class ChromaDBClient:
         """Create a collection if it doesn't exist."""
         try:
             # Try to get existing collection
-            collection = self.client.get_collection(self.collection_name)
+            self.client.get_collection(self.collection_name)
             print(f"Collection already exists: {self.collection_name}")
         except Exception:
             # Collection doesn't exist, create it

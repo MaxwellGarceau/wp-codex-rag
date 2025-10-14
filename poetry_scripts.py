@@ -25,8 +25,6 @@ def start():
     )
 
 
-
-
 def test():
     """Run tests"""
     subprocess.run(["pytest"], check=False)
@@ -46,27 +44,24 @@ def check_chroma():
     """Check ChromaDB data and collections"""
     # Poetry strips the first argument, so we need to reconstruct it
     import sys
-    
+
     # Get all arguments after the command name
     args = sys.argv[1:] if len(sys.argv) > 1 else []
-    
+
     # If the first arg is not --action, assume it's the action value
-    if args and not args[0].startswith('--'):
+    if args and not args[0].startswith("--"):
         # Insert --action before the first argument
-        args = ['--action'] + args
-    
+        args = ["--action", *args]
+
     # Run the script with reconstructed arguments
-    cmd = [sys.executable, "scripts/check_chroma_db.py"] + args
+    cmd = [sys.executable, "scripts/check_chroma_db.py", *args]
     subprocess.run(cmd, check=False)
 
 
-
-
 if __name__ == "__main__":
-    if len(sys.argv) < 2:
-        print(
-            "Available commands: start, test, test-cov, seed, check-chroma"
-        )
+    MIN_ARGS = 2
+    if len(sys.argv) < MIN_ARGS:
+        print("Available commands: start, test, test-cov, seed, check-chroma")
         sys.exit(1)
 
     command = sys.argv[1]
