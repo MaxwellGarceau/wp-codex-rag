@@ -1,6 +1,7 @@
-from fastapi import Depends, FastAPI
+from fastapi import FastAPI
 from fastapi.middleware import Middleware
 from fastapi.middleware.cors import CORSMiddleware
+
 from app.container import Container
 from app.rag.adapter.input.api import router as rag_router
 from core.config import config
@@ -19,8 +20,6 @@ def init_listeners(app_: FastAPI) -> None:
     register_exception_handlers(app_)
 
 
-
-
 def make_middleware() -> list[Middleware]:
     # Parse CORS origins from config
     cors_origins = config.CORS_ORIGINS.split(",") if config.CORS_ORIGINS else []
@@ -35,8 +34,6 @@ def make_middleware() -> list[Middleware]:
         ),
     ]
     return middleware
-
-
 
 
 def create_app() -> FastAPI:
