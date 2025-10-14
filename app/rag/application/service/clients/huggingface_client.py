@@ -83,7 +83,7 @@ class HuggingFaceClient(LLMClientInterface):
         system_prompt: str,
         user_prompt: str,
         temperature: float = 0.2,
-        max_tokens: int = 500,
+        max_tokens: int | None = None,
     ) -> str:
         """
         Generate a completion using HuggingFace's causal language model.
@@ -140,9 +140,11 @@ class HuggingFaceClient(LLMClientInterface):
                     "early_stopping": True,  # Stop early if EOS token is generated
                 }
 
-                # Add max_new_tokens only if specified
+                # Add max_new_tokens only if specified, otherwise use default
                 if max_tokens is not None:
                     generation_params["max_new_tokens"] = max_tokens
+                else:
+                    generation_params["max_new_tokens"] = 500  # Default value
 
                 outputs = self.completion_model.generate(**generation_params)
 
@@ -171,7 +173,7 @@ class HuggingFaceClient(LLMClientInterface):
             return answer
 
     def _handle_token_limit_truncation(
-        self, answer: str, outputs, max_tokens: int
+        self, answer: str, outputs: Any, max_tokens: int | None
     ) -> str:
         """
         Check if the response hit the token limit and add truncation message if needed.

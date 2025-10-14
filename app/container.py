@@ -11,7 +11,7 @@ class Container(DeclarativeContainer):
     wiring_config = WiringConfiguration(packages=["app"])
     huggingface_llm_client = Factory(HuggingFaceClient)
 
-    def _create_llm_clients_dict(huggingface_llm_client):
+    def _create_llm_clients_dict(huggingface_llm_client: HuggingFaceClient) -> dict[LLMProvider, HuggingFaceClient]:
         """Create the clients dictionary with resolved instances."""
         return {
             LLMProvider.HUGGINGFACE: huggingface_llm_client,
