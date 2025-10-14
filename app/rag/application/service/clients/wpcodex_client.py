@@ -8,6 +8,7 @@ from app.rag.domain.interface.ingest_documentation_client import (
     IngestDocumentationClient,
 )
 from core.helpers.html_cleaner import HTMLCleaner
+from core.helpers.semantic_chunker import SemanticChunker
 from core.logging_config import get_logger
 
 logger = get_logger(__name__)
@@ -32,7 +33,8 @@ class WPCodexClient(IngestDocumentationClient):
         - _fetch_wp_docs(endpoint): Fetch documentation from WordPress API
         - _validate_http_response(): Validate HTTP responses and handle status codes
         - _parse_json_response(): Parse JSON responses with error handling
-        - _chunk_text(): Split text into overlapping chunks
+        - _chunk_text(): Split text into overlapping chunks (legacy)
+        - semantic_chunker: SemanticChunker instance for intelligent text chunking
         - _generate_embeddings_batch(): Generate embeddings for text chunks
     """
 
@@ -57,6 +59,10 @@ class WPCodexClient(IngestDocumentationClient):
         # Initialize HTML cleaner for processing WordPress content
         self.html_cleaner = HTMLCleaner()
         logger.info("HTML cleaner initialized")
+
+        # Initialize semantic chunker for intelligent text chunking
+        self.semantic_chunker = SemanticChunker()
+        logger.info("Semantic chunker initialized")
 
     async def _fetch_wp_docs(self, endpoint: str) -> list[ProcessedDocument]:
         """
@@ -332,7 +338,9 @@ class WPCodexClient(IngestDocumentationClient):
                 )
                 continue
 
-            for idx, chunk in enumerate(self._chunk_text(cleaned_content)):
+            for idx, chunk in enumerate(
+                self.semantic_chunker.chunk_text(cleaned_content)
+            ):
                 ids.append(f"{doc.id}#c{idx}")
                 documents.append(chunk)
                 metadatas.append({"title": doc.title, "url": doc.url})
