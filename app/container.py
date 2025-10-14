@@ -1,5 +1,5 @@
 from dependency_injector.containers import DeclarativeContainer, WiringConfiguration
-from dependency_injector.providers import Callable, Factory, Singleton
+from dependency_injector.providers import Callable, Factory
 from openai import OpenAI
 
 from app.rag.application.service.clients.huggingface_client import HuggingFaceClient
