@@ -134,7 +134,7 @@ def main():
         "--query", type=str, help="Search query (required for search action)"
     )
     parser.add_argument(
-        "--limit", type=int, default=3, help="Number of results to show (default: 3)"
+        "--limit", type=int, default=8, help="Number of results to show (default: 8)"
     )
     parser.add_argument(
         "--results", type=int, default=5, help="Number of search results (default: 5)"
