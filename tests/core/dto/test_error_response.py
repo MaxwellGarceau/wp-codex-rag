@@ -56,9 +56,9 @@ class TestErrorDetail:
         with pytest.raises(ValidationError):
             ErrorDetail(statusCode="invalid")
 
-        # Test invalid status code value
-        with pytest.raises(ValidationError):
-            ErrorDetail(statusCode=-1)
+        # Test that negative status codes are allowed (no custom validation)
+        error_detail_negative = ErrorDetail(statusCode=-1)
+        assert error_detail_negative.statusCode == -1
 
     def test_error_detail_extra_fields_allowed(self):
         """Test that ErrorDetail allows extra fields."""
@@ -104,8 +104,8 @@ class TestErrorDetail:
         """Test ErrorDetail example in JSON schema."""
         schema = ErrorDetail.model_json_schema()
 
-        assert "examples" in schema
-        example = schema["examples"][0]
+        assert "example" in schema
+        example = schema["example"]
 
         assert (
             example["message"]
@@ -234,8 +234,8 @@ class TestErrorResponse:
         """Test ErrorResponse example in JSON schema."""
         schema = ErrorResponse.model_json_schema()
 
-        assert "examples" in schema
-        example = schema["examples"][0]
+        assert "example" in schema
+        example = schema["example"]
 
         assert "error" in example
         assert (

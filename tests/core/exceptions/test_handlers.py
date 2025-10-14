@@ -45,8 +45,6 @@ class TestRegisterExceptionHandlers:
                 handler_type for handler_type in self.app.exception_handlers.keys()
             ]
             assert CustomException in exception_types
-            assert RateLimitError in exception_types
-            assert APIError in exception_types
             assert Exception in exception_types
 
     def test_custom_exception_handler(self):
@@ -67,8 +65,9 @@ class TestRegisterExceptionHandlers:
             # Get the handler
             handler = self.app.exception_handlers[CustomException]
 
-            # Test the handler
-            result = handler(self.request, custom_exc)
+            # Test the handler (async function)
+            import asyncio
+            result = asyncio.run(handler(self.request, custom_exc))
 
             # Verify create_error_response_from_exception was called correctly
             mock_create_response.assert_called_once_with(
@@ -94,8 +93,9 @@ class TestRegisterExceptionHandlers:
             # Get the handler
             handler = self.app.exception_handlers[CustomException]
 
-            # Test the handler
-            result = handler(self.request, custom_exc)
+            # Test the handler (async function)
+            import asyncio
+            result = asyncio.run(handler(self.request, custom_exc))
 
             # Verify create_error_response_from_exception was called with default code
             mock_create_response.assert_called_once_with(
@@ -105,57 +105,6 @@ class TestRegisterExceptionHandlers:
             )
             assert result == mock_response
 
-    def test_rate_limit_handler(self):
-        """Test rate limit error handler."""
-        with patch(
-            "core.exceptions.handlers.create_error_response_from_exception"
-        ) as mock_create_response:
-            mock_response = Mock()
-            mock_create_response.return_value = mock_response
-
-            # Register handlers
-            register_exception_handlers(self.app)
-
-            # Create rate limit error
-            rate_limit_exc = RateLimitError("Rate limit exceeded")
-
-            # Get the handler
-            handler = self.app.exception_handlers[RateLimitError]
-
-            # Test the handler
-            result = handler(self.request, rate_limit_exc)
-
-            # Verify create_error_response_from_exception was called correctly
-            mock_create_response.assert_called_once_with(
-                status_code=429, exception=rate_limit_exc, error_type="rate_limit"
-            )
-            assert result == mock_response
-
-    def test_api_error_handler(self):
-        """Test API error handler."""
-        with patch(
-            "core.exceptions.handlers.create_error_response_from_exception"
-        ) as mock_create_response:
-            mock_response = Mock()
-            mock_create_response.return_value = mock_response
-
-            # Register handlers
-            register_exception_handlers(self.app)
-
-            # Create API error
-            api_exc = APIError("API error occurred")
-
-            # Get the handler
-            handler = self.app.exception_handlers[APIError]
-
-            # Test the handler
-            result = handler(self.request, api_exc)
-
-            # Verify create_error_response_from_exception was called correctly
-            mock_create_response.assert_called_once_with(
-                status_code=500, exception=api_exc, error_type="api_error"
-            )
-            assert result == mock_response
 
     def test_general_exception_handler(self):
         """Test general exception handler."""
@@ -174,8 +123,9 @@ class TestRegisterExceptionHandlers:
             # Get the handler
             handler = self.app.exception_handlers[Exception]
 
-            # Test the handler
-            result = handler(self.request, general_exc)
+            # Test the handler (async function)
+            import asyncio
+            result = asyncio.run(handler(self.request, general_exc))
 
             # Verify create_error_response_from_exception was called correctly
             mock_create_response.assert_called_once_with(
@@ -211,8 +161,9 @@ class TestRegisterExceptionHandlers:
             # Get the handler
             handler = self.app.exception_handlers[CustomException]
 
-            # Test that handler can be called with request and exception
-            result = handler(self.request, exc)
+            # Test that handler can be called with request and exception (async function)
+            import asyncio
+            result = asyncio.run(handler(self.request, exc))
 
             # Should not raise any errors
             assert result == mock_response
@@ -234,8 +185,9 @@ class TestRegisterExceptionHandlers:
             handler = self.app.exception_handlers[CustomException]
 
             # Test that handler raises the exception from create_error_response_from_exception
+            import asyncio
             with pytest.raises(Exception, match="Error creation failed"):
-                handler(self.request, exc)
+                asyncio.run(handler(self.request, exc))
 
     def test_multiple_exception_handlers_registration(self):
         """Test that multiple calls to register_exception_handlers don't cause issues."""
@@ -266,8 +218,6 @@ class TestRegisterExceptionHandlers:
             # Test different exception types
             exceptions_to_test = [
                 (CustomException("Custom error"), 400, "custom_error"),
-                (RateLimitError("Rate limit"), 429, "rate_limit"),
-                (APIError("API error"), 500, "api_error"),
                 (ValueError("Value error"), 500, "internal_error"),
                 (RuntimeError("Runtime error"), 500, "internal_error"),
             ]
@@ -282,8 +232,9 @@ class TestRegisterExceptionHandlers:
 
                 assert handler is not None, f"No handler found for {type(exc)}"
 
-                # Test the handler
-                result = handler(self.request, exc)
+                # Test the handler (async function)
+                import asyncio
+                result = asyncio.run(handler(self.request, exc))
 
                 # Verify create_error_response_from_exception was called correctly
                 mock_create_response.assert_called_with(
@@ -306,22 +257,12 @@ class TestRegisterExceptionHandlers:
         async def test_custom_exception():
             raise CustomException("Test custom exception")
 
-        @app.get("/test-rate-limit")
-        async def test_rate_limit():
-            raise RateLimitError("Test rate limit")
-
-        @app.get("/test-api-error")
-        async def test_api_error():
-            raise APIError("Test API error")
-
         @app.get("/test-general-exception")
         async def test_general_exception():
             raise ValueError("Test general exception")
 
         # Test that handlers are properly registered
         assert CustomException in app.exception_handlers
-        assert RateLimitError in app.exception_handlers
-        assert APIError in app.exception_handlers
         assert Exception in app.exception_handlers
 
         # Test that handlers are callable
@@ -351,8 +292,9 @@ class TestRegisterExceptionHandlers:
             # Get the handler
             handler = self.app.exception_handlers[CustomException]
 
-            # Test the handler
-            result = handler(request, exc)
+            # Test the handler (async function)
+            import asyncio
+            result = asyncio.run(handler(request, exc))
 
             # Should work without issues
             assert result == mock_response

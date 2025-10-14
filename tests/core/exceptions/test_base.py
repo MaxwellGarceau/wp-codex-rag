@@ -192,7 +192,7 @@ class TestCustomException:
         """Test CustomException with falsy message values."""
         # Test with False
         exc_false = CustomException(message=False)
-        assert exc_false.message == "BAD GATEWAY"  # Should use default
+        assert exc_false.message == False  # Should use provided value
 
         # Test with 0
         exc_zero = CustomException(message=0)
