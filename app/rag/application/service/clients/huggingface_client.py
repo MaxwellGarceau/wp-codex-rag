@@ -1,3 +1,5 @@
+from typing import Any
+
 import torch
 from sentence_transformers import SentenceTransformer
 from transformers import AutoModelForCausalLM, AutoTokenizer
@@ -83,7 +85,7 @@ class HuggingFaceClient(LLMClientInterface):
         system_prompt: str,
         user_prompt: str,
         temperature: float = 0.2,
-        max_tokens: int = 500,
+        max_tokens: int | None = None,
     ) -> str:
         """
         Generate a completion using HuggingFace's causal language model.
@@ -171,7 +173,7 @@ class HuggingFaceClient(LLMClientInterface):
             return answer
 
     def _handle_token_limit_truncation(
-        self, answer: str, outputs, max_tokens: int
+        self, answer: str, outputs: Any, max_tokens: int | None
     ) -> str:
         """
         Check if the response hit the token limit and add truncation message if needed.

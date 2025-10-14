@@ -30,8 +30,8 @@ class LLMServiceFactory:
     def execute_operation(
         self,
         operation: LLMOperation,
-        provider: LLMProvider = LLMProvider.OPENAI,
-        **kwargs,
+        provider: LLMProvider = LLMProvider.HUGGINGFACE,
+        **kwargs: Any,
     ) -> Any:
         """
         Execute a specific LLM operation with the specified provider.
@@ -44,6 +44,14 @@ class LLMServiceFactory:
         Returns:
             The result of the operation
         """
+        # Validate operation type
+        if not isinstance(operation, LLMOperation):
+            raise ValueError(f"Unsupported operation: {operation}")
+        
+        # Validate provider type
+        if not isinstance(provider, LLMProvider):
+            raise ValueError(f"No client available for provider: {provider}")
+
         logger.debug(
             f"Executing {operation.value} operation with {provider.value} provider"
         )
@@ -63,7 +71,7 @@ class LLMServiceFactory:
         return client
 
     def _handle_embedding(
-        self, client: LLMClientInterface, text: str, **kwargs
+        self, client: LLMClientInterface, text: str, **kwargs: Any
     ) -> list[float]:
         """Handle embedding generation."""
         return client.generate_embedding(text)
@@ -75,7 +83,7 @@ class LLMServiceFactory:
         user_prompt: str,
         temperature: float = 0.2,
         max_tokens: int | None = None,
-        **kwargs,
+        **kwargs: Any,
     ) -> str:
         """Handle completion generation."""
         return client.generate_completion(
