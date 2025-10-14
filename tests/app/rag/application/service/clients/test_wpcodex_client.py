@@ -76,7 +76,6 @@ class TestWPCodexClient:
         chunks = self.client._chunk_text("")
         assert chunks == []
 
-
     def test_validate_http_response_success(self) -> None:
         """Test HTTP response validation for successful responses."""
         mock_response = Mock()
