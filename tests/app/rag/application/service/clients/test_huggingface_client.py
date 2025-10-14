@@ -164,13 +164,18 @@ class TestHuggingFaceClient:
         expected_completion = "WordPress is a content management system."
 
         # Mock tokenizer
-        mock_inputs = {"input_ids": Mock(), "attention_mask": Mock()}
+        mock_inputs = Mock()
+        mock_inputs.to.return_value = mock_inputs
+        mock_inputs.__getitem__ = Mock(return_value=Mock())
         self.client.tokenizer.return_value = mock_inputs
         self.client.tokenizer.apply_chat_template.return_value = "Formatted prompt"
 
         # Mock model generation
-        mock_outputs = Mock()
-        mock_outputs[0] = Mock()
+        mock_output = Mock()
+        mock_slice = Mock()
+        mock_slice.tolist.return_value = [1, 2, 3]  # Return a proper list
+        mock_output.__getitem__ = Mock(return_value=mock_slice)
+        mock_outputs = [mock_output]
         self.client.completion_model.generate.return_value = mock_outputs
 
         # Mock tokenizer decode
@@ -180,8 +185,6 @@ class TestHuggingFaceClient:
 
         # Mock device
         self.client.device = "cpu"
-        mock_inputs["input_ids"].to.return_value = mock_inputs["input_ids"]
-        mock_inputs["attention_mask"].to.return_value = mock_inputs["attention_mask"]
 
         # Act
         with patch("torch.no_grad"):
@@ -202,13 +205,18 @@ class TestHuggingFaceClient:
         expected_completion = "WordPress is a content management system."
 
         # Mock tokenizer
-        mock_inputs = {"input_ids": Mock(), "attention_mask": Mock()}
+        mock_inputs = Mock()
+        mock_inputs.to.return_value = mock_inputs
+        mock_inputs.__getitem__ = Mock(return_value=Mock())
         self.client.tokenizer.return_value = mock_inputs
         self.client.tokenizer.apply_chat_template.return_value = "Formatted prompt"
 
         # Mock model generation
-        mock_outputs = Mock()
-        mock_outputs[0] = Mock()
+        mock_output = Mock()
+        mock_slice = Mock()
+        mock_slice.tolist.return_value = [1, 2, 3]  # Return a proper list
+        mock_output.__getitem__ = Mock(return_value=mock_slice)
+        mock_outputs = [mock_output]
         self.client.completion_model.generate.return_value = mock_outputs
 
         # Mock tokenizer decode
@@ -218,8 +226,6 @@ class TestHuggingFaceClient:
 
         # Mock device
         self.client.device = "cpu"
-        mock_inputs["input_ids"].to.return_value = mock_inputs["input_ids"]
-        mock_inputs["attention_mask"].to.return_value = mock_inputs["attention_mask"]
 
         # Act
         with patch("torch.no_grad"):
@@ -244,13 +250,18 @@ class TestHuggingFaceClient:
         expected_completion = "WordPress is a content management system."
 
         # Mock tokenizer
-        mock_inputs = {"input_ids": Mock(), "attention_mask": Mock()}
+        mock_inputs = Mock()
+        mock_inputs.to.return_value = mock_inputs
+        mock_inputs.__getitem__ = Mock(return_value=Mock())
         self.client.tokenizer.return_value = mock_inputs
         self.client.tokenizer.apply_chat_template.return_value = "Formatted prompt"
 
         # Mock model generation
-        mock_outputs = Mock()
-        mock_outputs[0] = Mock()
+        mock_output = Mock()
+        mock_slice = Mock()
+        mock_slice.tolist.return_value = [1, 2, 3]  # Return a proper list
+        mock_output.__getitem__ = Mock(return_value=mock_slice)
+        mock_outputs = [mock_output]
         self.client.completion_model.generate.return_value = mock_outputs
 
         # Mock tokenizer decode
@@ -260,8 +271,6 @@ class TestHuggingFaceClient:
 
         # Mock device
         self.client.device = "cpu"
-        mock_inputs["input_ids"].to.return_value = mock_inputs["input_ids"]
-        mock_inputs["attention_mask"].to.return_value = mock_inputs["attention_mask"]
 
         # Act
         with patch("torch.no_grad"):
@@ -330,9 +339,11 @@ class TestHuggingFaceClient:
         max_tokens = 100
 
         # Mock outputs
-        mock_outputs = Mock()
-        mock_outputs[0] = Mock()
-        mock_outputs[0][-3:].tolist.return_value = [1, 2, 3]  # No special tokens
+        mock_output = Mock()
+        mock_slice = Mock()
+        mock_slice.tolist.return_value = [5, 6, 7]  # No special tokens (not 0 or 1)
+        mock_output.__getitem__ = Mock(return_value=mock_slice)
+        mock_outputs = [mock_output]
 
         # Mock tokenizer
         self.client.tokenizer.eos_token_id = 0
@@ -354,9 +365,11 @@ class TestHuggingFaceClient:
         max_tokens = 100
 
         # Mock outputs
-        mock_outputs = Mock()
-        mock_outputs[0] = Mock()
-        mock_outputs[0][-3:].tolist.return_value = [1, 2, 3]  # No special tokens
+        mock_output = Mock()
+        mock_slice = Mock()
+        mock_slice.tolist.return_value = [1, 2, 3]  # No special tokens
+        mock_output.__getitem__ = Mock(return_value=mock_slice)
+        mock_outputs = [mock_output]
 
         # Mock tokenizer
         self.client.tokenizer.eos_token_id = 0
@@ -377,9 +390,11 @@ class TestHuggingFaceClient:
         max_tokens = 100
 
         # Mock outputs
-        mock_outputs = Mock()
-        mock_outputs[0] = Mock()
-        mock_outputs[0][-3:].tolist.return_value = [0, 1, 2]  # Contains special tokens
+        mock_output = Mock()
+        mock_slice = Mock()
+        mock_slice.tolist.return_value = [0, 1, 2]  # Contains special tokens
+        mock_output.__getitem__ = Mock(return_value=mock_slice)
+        mock_outputs = [mock_output]
 
         # Mock tokenizer
         self.client.tokenizer.eos_token_id = 0
@@ -400,9 +415,11 @@ class TestHuggingFaceClient:
         max_tokens = None
 
         # Mock outputs
-        mock_outputs = Mock()
-        mock_outputs[0] = Mock()
-        mock_outputs[0][-3:].tolist.return_value = [1, 2, 3]
+        mock_output = Mock()
+        mock_slice = Mock()
+        mock_slice.tolist.return_value = [1, 2, 3]
+        mock_output.__getitem__ = Mock(return_value=mock_slice)
+        mock_outputs = [mock_output]
 
         # Act
         result = self.client._handle_token_limit_truncation(
@@ -420,13 +437,18 @@ class TestHuggingFaceClient:
         expected_completion = "WordPress is a CMS."
 
         # Mock tokenizer
-        mock_inputs = {"input_ids": Mock(), "attention_mask": Mock()}
+        mock_inputs = Mock()
+        mock_inputs.to.return_value = mock_inputs
+        mock_inputs.__getitem__ = Mock(return_value=Mock())
         self.client.tokenizer.return_value = mock_inputs
         self.client.tokenizer.apply_chat_template.return_value = "Formatted prompt"
 
         # Mock model generation
-        mock_outputs = Mock()
-        mock_outputs[0] = Mock()
+        mock_output = Mock()
+        mock_slice = Mock()
+        mock_slice.tolist.return_value = [1, 2, 3]  # Return a proper list
+        mock_output.__getitem__ = Mock(return_value=mock_slice)
+        mock_outputs = [mock_output]
         self.client.completion_model.generate.return_value = mock_outputs
 
         # Mock tokenizer decode
@@ -436,8 +458,6 @@ class TestHuggingFaceClient:
 
         # Mock device
         self.client.device = "cpu"
-        mock_inputs["input_ids"].to.return_value = mock_inputs["input_ids"]
-        mock_inputs["attention_mask"].to.return_value = mock_inputs["attention_mask"]
 
         # Act
         with patch("torch.no_grad"):
@@ -461,15 +481,20 @@ class TestHuggingFaceClient:
         expected_completion = "WordPress is a CMS."
 
         # Mock tokenizer
-        mock_inputs = {"input_ids": Mock(), "attention_mask": Mock()}
+        mock_inputs = Mock()
+        mock_inputs.to.return_value = mock_inputs
+        mock_inputs.__getitem__ = Mock(return_value=Mock())
         self.client.tokenizer.return_value = mock_inputs
         self.client.tokenizer.apply_chat_template.return_value = "Formatted prompt"
         self.client.tokenizer.eos_token_id = 0
         self.client.tokenizer.pad_token_id = 1
 
         # Mock model generation
-        mock_outputs = Mock()
-        mock_outputs[0] = Mock()
+        mock_output = Mock()
+        mock_slice = Mock()
+        mock_slice.tolist.return_value = [1, 2, 3]  # Return a proper list
+        mock_output.__getitem__ = Mock(return_value=mock_slice)
+        mock_outputs = [mock_output]
         self.client.completion_model.generate.return_value = mock_outputs
 
         # Mock tokenizer decode
@@ -479,8 +504,6 @@ class TestHuggingFaceClient:
 
         # Mock device
         self.client.device = "cpu"
-        mock_inputs["input_ids"].to.return_value = mock_inputs["input_ids"]
-        mock_inputs["attention_mask"].to.return_value = mock_inputs["attention_mask"]
 
         # Act
         with patch("torch.no_grad"):
@@ -493,7 +516,7 @@ class TestHuggingFaceClient:
             "attention_mask": mock_inputs["attention_mask"],
             "temperature": 0.5,
             "do_sample": True,
-            "pad_token_id": 1,
+            "pad_token_id": 0,  # Should be eos_token_id when pad_token_id is None
             "eos_token_id": 0,
             "repetition_penalty": 1.2,
             "no_repeat_ngram_size": 3,
