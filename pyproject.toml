@@ -36,6 +36,7 @@ test = "poetry_scripts:test"
 test-cov = "poetry_scripts:test_cov"
 seed = "poetry_scripts:seed"
 check-chroma = "poetry_scripts:check_chroma"
+docker-up = "poetry_scripts:docker_up"
 
 [tool.coverage.run]
 omit=["tests/*", "test_*.py", "migrations/*"]

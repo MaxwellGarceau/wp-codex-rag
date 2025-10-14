@@ -58,10 +58,18 @@ def check_chroma():
     subprocess.run(cmd, check=False)
 
 
+def docker_up():
+    """Start Docker services (ChromaDB)"""
+    subprocess.run(
+        ["docker-compose", "-f", "docker/docker-compose.yml", "up", "chromadb"],
+        check=False,
+    )
+
+
 if __name__ == "__main__":
     MIN_ARGS = 2
     if len(sys.argv) < MIN_ARGS:
-        print("Available commands: start, test, test-cov, seed, check-chroma")
+        print("Available commands: start, test, test-cov, seed, check-chroma, docker-up")
         sys.exit(1)
 
     command = sys.argv[1]
@@ -75,6 +83,8 @@ if __name__ == "__main__":
         seed()
     elif command == "check-chroma":
         check_chroma()
+    elif command == "docker-up":
+        docker_up()
     else:
         print(f"Unknown command: {command}")
         sys.exit(1)
