@@ -1,13 +1,5 @@
 version: "3.8"
 services:
-  redis:
-    image: redis:6.2.6
-    container_name: fastapi-redis
-    command: redis-server --port 6379
-    restart: always
-    ports:
-      - "6379:6379"
-
   chromadb:
     image: chromadb/chroma:0.5.23
     container_name: fastapi-chromadb

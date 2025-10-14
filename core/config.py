@@ -8,14 +8,11 @@ class Config(BaseSettings):
     DEBUG: bool = True
     APP_HOST: str = "0.0.0.0"
     APP_PORT: int = 8000
-    SENTRY_SDN: str = ""
     # RAG/Vector/LLM settings
     OPENAI_API_KEY: str = ""
     OPENAI_MODEL: str = "gpt-4o-mini"
     OPENAI_EMBEDDING_MODEL: str = "text-embedding-3-small"
     CHROMA_PERSIST_DIRECTORY: str = ".chroma"
-    CHROMA_SERVER_HOST: str = "localhost"
-    CHROMA_SERVER_PORT: int = 8001
     RAG_COLLECTION_NAME: str = "wp_codex_plugin"
     # CORS settings
     CORS_ORIGINS: str = "http://localhost:3000,http://localhost:3001"
