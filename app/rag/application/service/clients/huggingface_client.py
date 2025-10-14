@@ -1,3 +1,5 @@
+from typing import Any
+
 import torch
 from sentence_transformers import SentenceTransformer
 from transformers import AutoModelForCausalLM, AutoTokenizer
@@ -140,11 +142,9 @@ class HuggingFaceClient(LLMClientInterface):
                     "early_stopping": True,  # Stop early if EOS token is generated
                 }
 
-                # Add max_new_tokens only if specified, otherwise use default
+                # Add max_new_tokens only if specified
                 if max_tokens is not None:
                     generation_params["max_new_tokens"] = max_tokens
-                else:
-                    generation_params["max_new_tokens"] = 500  # Default value
 
                 outputs = self.completion_model.generate(**generation_params)
 
