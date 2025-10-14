@@ -5,9 +5,6 @@ from app.container import Container
 from app.rag.adapter.input.api import router as rag_router
 from core.config import config
 from core.exceptions.handlers import register_exception_handlers
-from core.fastapi.middlewares import (
-    ResponseLogMiddleware,
-)
 from core.logging_config import setup_logging
 
 
@@ -36,7 +33,6 @@ def make_middleware() -> list[Middleware]:
             allow_methods=["*"],
             allow_headers=["*"],
         ),
-        Middleware(ResponseLogMiddleware),
     ]
     return middleware
 
