@@ -1,4 +1,5 @@
 import { HttpClient } from "./httpClient";
+import { ApiConfig } from "../config/api";
 
 export type RAGSource = { title: string; url: string };
 export type RAGQueryResponse = { answer: string; sources: RAGSource[] };
@@ -23,9 +24,10 @@ export class RAGClient {
 		this.httpClient = new HttpClient(baseUrl);
 	}
 
-	async query(question: string): Promise<RAGQueryResponse> {
+	async query(question: string, useRAG: boolean = true): Promise<RAGQueryResponse> {
 		try {
-			return await this.httpClient.post<RAGQueryResponse>("/api/v1/rag/query", { question });
+			const endpoint = ApiConfig.getRAGQueryEndpoint(useRAG);
+			return await this.httpClient.post<RAGQueryResponse>(endpoint, { question });
 		} catch (error) {
 			// Log the actual error for debugging
 			console.error('RAG Client Error:', error);
@@ -33,4 +35,3 @@ export class RAGClient {
 		}
 	}
 }
-
