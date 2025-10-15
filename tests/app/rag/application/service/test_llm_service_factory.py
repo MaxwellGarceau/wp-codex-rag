@@ -43,7 +43,9 @@ class TestLLMServiceFactory:
     def test_execute_embedding_operation(self):
         """Test executing embedding operation."""
         expected_embedding = [0.1, 0.2, 0.3, 0.4, 0.5]
-        self.mock_huggingface_client.generate_embedding.return_value = expected_embedding
+        self.mock_huggingface_client.generate_embedding.return_value = (
+            expected_embedding
+        )
 
         result = self.factory.execute_operation(
             operation=LLMOperation.EMBEDDING,
@@ -52,7 +54,9 @@ class TestLLMServiceFactory:
         )
 
         assert result == expected_embedding
-        self.mock_huggingface_client.generate_embedding.assert_called_once_with("test text")
+        self.mock_huggingface_client.generate_embedding.assert_called_once_with(
+            "test text"
+        )
 
     def test_execute_embedding_operation_with_huggingface(self):
         """Test executing embedding operation with HuggingFace provider."""
@@ -75,7 +79,9 @@ class TestLLMServiceFactory:
     def test_execute_completion_operation(self):
         """Test executing completion operation."""
         expected_completion = "Generated answer"
-        self.mock_huggingface_client.generate_completion.return_value = expected_completion
+        self.mock_huggingface_client.generate_completion.return_value = (
+            expected_completion
+        )
 
         result = self.factory.execute_operation(
             operation=LLMOperation.COMPLETION,
@@ -93,7 +99,9 @@ class TestLLMServiceFactory:
     def test_execute_completion_operation_with_max_tokens(self):
         """Test executing completion operation with max_tokens parameter."""
         expected_completion = "Generated answer"
-        self.mock_huggingface_client.generate_completion.return_value = expected_completion
+        self.mock_huggingface_client.generate_completion.return_value = (
+            expected_completion
+        )
 
         result = self.factory.execute_operation(
             operation=LLMOperation.COMPLETION,
@@ -112,7 +120,9 @@ class TestLLMServiceFactory:
     def test_execute_completion_operation_with_none_max_tokens(self):
         """Test executing completion operation with None max_tokens."""
         expected_completion = "Generated answer"
-        self.mock_huggingface_client.generate_completion.return_value = expected_completion
+        self.mock_huggingface_client.generate_completion.return_value = (
+            expected_completion
+        )
 
         result = self.factory.execute_operation(
             operation=LLMOperation.COMPLETION,
@@ -152,7 +162,9 @@ class TestLLMServiceFactory:
     def test_execute_completion_operation_with_extra_kwargs(self):
         """Test executing completion operation with extra kwargs."""
         expected_completion = "Generated answer"
-        self.mock_huggingface_client.generate_completion.return_value = expected_completion
+        self.mock_huggingface_client.generate_completion.return_value = (
+            expected_completion
+        )
 
         result = self.factory.execute_operation(
             operation=LLMOperation.COMPLETION,
@@ -172,7 +184,7 @@ class TestLLMServiceFactory:
 
     def test_execute_operation_with_unsupported_operation(self):
         """Test executing unsupported operation raises error."""
-        with pytest.raises(ValueError, match="Unsupported operation"):
+        with pytest.raises(TypeError, match="Unsupported operation"):
             self.factory.execute_operation(
                 operation="unsupported_operation",  # type: ignore
                 provider=LLMProvider.HUGGINGFACE,
@@ -180,7 +192,7 @@ class TestLLMServiceFactory:
 
     def test_execute_operation_with_unsupported_provider(self):
         """Test executing operation with unsupported provider raises error."""
-        with pytest.raises(ValueError, match="No client available for provider"):
+        with pytest.raises(TypeError, match="No client available for provider"):
             self.factory.execute_operation(
                 operation=LLMOperation.EMBEDDING,
                 provider="unsupported_provider",  # type: ignore
@@ -188,7 +200,7 @@ class TestLLMServiceFactory:
 
     def test_execute_operation_with_none_provider(self):
         """Test executing operation with None provider raises error."""
-        with pytest.raises(ValueError, match="No client available for provider"):
+        with pytest.raises(TypeError, match="No client available for provider"):
             self.factory.execute_operation(
                 operation=LLMOperation.EMBEDDING,
                 provider=None,  # type: ignore
@@ -196,7 +208,7 @@ class TestLLMServiceFactory:
 
     def test_execute_operation_with_none_operation(self):
         """Test executing operation with None operation raises error."""
-        with pytest.raises(ValueError, match="Unsupported operation"):
+        with pytest.raises(TypeError, match="Unsupported operation"):
             self.factory.execute_operation(
                 operation=None,  # type: ignore
                 provider=LLMProvider.HUGGINGFACE,
@@ -225,19 +237,25 @@ class TestLLMServiceFactory:
     def test_handle_embedding_with_extra_kwargs(self):
         """Test embedding handler ignores extra kwargs."""
         expected_embedding = [0.1, 0.2, 0.3, 0.4, 0.5]
-        self.mock_huggingface_client.generate_embedding.return_value = expected_embedding
+        self.mock_huggingface_client.generate_embedding.return_value = (
+            expected_embedding
+        )
 
         result = self.factory._handle_embedding(
             self.mock_huggingface_client, text="test text", extra_param="ignored"
         )
 
         assert result == expected_embedding
-        self.mock_huggingface_client.generate_embedding.assert_called_once_with("test text")
+        self.mock_huggingface_client.generate_embedding.assert_called_once_with(
+            "test text"
+        )
 
     def test_handle_completion_with_extra_kwargs(self):
         """Test completion handler ignores extra kwargs."""
         expected_completion = "Generated answer"
-        self.mock_huggingface_client.generate_completion.return_value = expected_completion
+        self.mock_huggingface_client.generate_completion.return_value = (
+            expected_completion
+        )
 
         result = self.factory._handle_completion(
             self.mock_huggingface_client,
