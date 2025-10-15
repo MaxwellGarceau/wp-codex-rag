@@ -23,9 +23,10 @@ export class RAGClient {
 		this.httpClient = new HttpClient(baseUrl);
 	}
 
-	async query(question: string): Promise<RAGQueryResponse> {
+	async query(question: string, useRAG: boolean = true): Promise<RAGQueryResponse> {
 		try {
-			return await this.httpClient.post<RAGQueryResponse>("/api/v1/rag/query", { question });
+			const endpoint = useRAG ? "/api/v1/rag/query" : "/api/v1/rag/query-llm-only";
+			return await this.httpClient.post<RAGQueryResponse>(endpoint, { question });
 		} catch (error) {
 			// Log the actual error for debugging
 			console.error('RAG Client Error:', error);
@@ -33,4 +34,3 @@ export class RAGClient {
 		}
 	}
 }
-

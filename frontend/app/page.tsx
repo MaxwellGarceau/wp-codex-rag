@@ -14,6 +14,7 @@ export default function HomePage() {
   const [sources, setSources] = useState<RAGSource[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [useRAG, setUseRAG] = useState(true);
 
   const ask = async () => {
     setLoading(true);
@@ -21,7 +22,7 @@ export default function HomePage() {
     setAnswer(null);
     setSources([]);
     try {
-      const data = await client.query(question);
+      const data = await client.query(question, useRAG);
       setAnswer(data.answer);
       setSources(data.sources || []);
     } catch (e: any) {
@@ -41,7 +42,9 @@ export default function HomePage() {
       <QuestionForm
         question={question}
         loading={loading}
+        useRAG={useRAG}
         onQuestionChange={setQuestion}
+        onRAGToggle={setUseRAG}
         onSubmit={ask}
       />
 

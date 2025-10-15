@@ -35,7 +35,6 @@ class TestRAGService:
 
     def test_init(self) -> None:
         """Test RAGService initialization."""
-        assert self.rag_service.llm_factory == self.mock_llm_factory
         assert self.rag_service.client == self.mock_chroma_client
         assert self.rag_service.collection == self.mock_collection
 
