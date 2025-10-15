@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { RAGClient, RAGQueryResponse, ErrorProperties } from '@/services/ragClient'
 import { HttpClient } from '@/services/httpClient'
+import { API_ENDPOINTS } from '@/config/api'
 
 // Mock HttpClient
 vi.mock('@/services/httpClient')
@@ -45,7 +46,7 @@ describe('RAGClient', () => {
 
       const result = await ragClient.query('What is WordPress?')
 
-      expect(mockHttpClient.post).toHaveBeenCalledWith('/api/v1/rag/query', {
+      expect(mockHttpClient.post).toHaveBeenCalledWith(API_ENDPOINTS.RAG.QUERY, {
         question: 'What is WordPress?'
       })
       expect(result).toEqual(mockResponse)
@@ -126,7 +127,7 @@ describe('RAGClient', () => {
 
       for (const question of questions) {
         await ragClient.query(question)
-        expect(mockHttpClient.post).toHaveBeenCalledWith('/api/v1/rag/query', {
+        expect(mockHttpClient.post).toHaveBeenCalledWith(API_ENDPOINTS.RAG.QUERY, {
           question
         })
       }

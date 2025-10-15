@@ -1,4 +1,5 @@
 import { HttpClient } from "./httpClient";
+import { ApiConfig } from "../config/api";
 
 export type RAGSource = { title: string; url: string };
 export type RAGQueryResponse = { answer: string; sources: RAGSource[] };
@@ -25,7 +26,7 @@ export class RAGClient {
 
 	async query(question: string, useRAG: boolean = true): Promise<RAGQueryResponse> {
 		try {
-			const endpoint = useRAG ? "/api/v1/rag/query" : "/api/v1/rag/query-llm-only";
+			const endpoint = ApiConfig.getRAGQueryEndpoint(useRAG);
 			return await this.httpClient.post<RAGQueryResponse>(endpoint, { question });
 		} catch (error) {
 			// Log the actual error for debugging
