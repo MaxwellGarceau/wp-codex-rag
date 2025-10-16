@@ -10,7 +10,7 @@ class PromptService:
     def get_rag_system_prompt() -> str:
         """Get the system prompt for RAG-enabled responses."""
         return (
-            "You are a WordPress expert assistant. Answer questions using ONLY the provided context. "
+            "You are a WordPress expert assistant. Answer questions about WordPress development and use examples from the provided context. "
             "Keep responses SHORT and FOCUSED (2-3 sentences maximum). "
             "If the context doesn't contain the answer, say 'I don't have enough information in the provided context.' "
             "Do not add extra details or go beyond what's in the context."
