@@ -3,6 +3,16 @@
 ## Overview
 This app adds a Retrieval-Augmented Generation (RAG) pipeline using Chroma and Groq to answer WordPress questions. It ingests WordPress Codex content (plugin development scope) into a vector store, retrieves relevant chunks, and forwards enriched prompts to an LLM.
 
+### Before
+The `remove_action` answer is correct, but vague and lacking in relevant and important context.
+
+<img width="777" height="520" alt="remove-action-question-before" src="https://github.com/user-attachments/assets/529516c1-0bab-44bb-90a3-b80add7e35b6" />
+
+### After
+The core `remove_action` answer is provided, but with vital context stating that the function being removed must be registered **first** and that the priority of the actions is important. In addition, there are links to the source WP Codex Plugin Handbook information.
+
+<img width="775" height="685" alt="remove-action-question-after" src="https://github.com/user-attachments/assets/d2688cd5-e7d2-4ce3-9381-046ca7b38f9b" />
+
 ## Setup
 - Ensure Python dependencies are installed via Poetry
 - Create a `.env` (see `.env.example`) and set `GROQ_API_KEY`
